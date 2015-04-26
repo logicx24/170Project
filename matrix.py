@@ -21,8 +21,8 @@ COLORS = ["R", "B"]
 
 
 def generate_random_coloring(n):
-    red = np.array(["R"] * (n/2)) 
-    blue = np.array(["B"] * (n/2))
+    red = np.array(["R"] * (n / 2))
+    blue = np.array(["B"] * (n / 2))
     lst = np.append(red, blue)
     np.random.shuffle(lst)
     return lst
