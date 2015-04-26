@@ -41,7 +41,7 @@ def print_matrix(n, matrix, c):
   output = "\n".join([" ".join([str(i) for i in row]) for row in matrix])
   open("{0}.in".format(c),'w').write(str(n) + "\n" + output + "\n" + "".join(generate_random_coloring(n)))
 
-for i in range(1,3):
+for i in range(3):
   n = 50
   matrix = generate_matrix(n)
   matrix = sanitize(n, matrix)
