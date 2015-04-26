@@ -37,12 +37,13 @@ N = 100
 b = np.random.random_integers(-2000,2000,size=(N,N))
 b_symm = (b + b.T)/2
 
-def print_matrix(matrix):
+def print_matrix(n, matrix, c):
   output = "\n".join([" ".join([str(i) for i in row]) for row in matrix])
-  open("a.out",'w').write(output)
-  return output
+  open("{0}.in".format(c),'w').write(str(n) + "\n" + output + "\n" + "".join(generate_random_coloring(n)))
 
-matrix = generate_matrix(10)
-matrix = sanitize(10, matrix)
-print_matrix(matrix)
+for i in range(1,3):
+  n = 50
+  matrix = generate_matrix(n)
+  matrix = sanitize(n, matrix)
+  print_matrix(n, matrix, i)
 
