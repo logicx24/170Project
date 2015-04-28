@@ -19,18 +19,12 @@ def sanitize(n, matrix):
 
 COLORS = ["R", "B"]
 
-
 def generate_random_coloring(n):
     red = np.array(["R"] * (n / 2))
     blue = np.array(["B"] * (n / 2))
     lst = np.append(red, blue)
     np.random.shuffle(lst)
     return lst
-
-N = 100
-b = np.random.random_integers(-2000, 2000, size=(N, N))
-b_symm = (b + b.T) / 2
-
 
 def print_matrix(n, matrix, c):
     output = "\n".join([" ".join([str(i) for i in row]) for row in matrix])
