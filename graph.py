@@ -38,7 +38,8 @@ class Graph(object):
 	def is_valid_hamiltonian(self, path):
 		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) and self.is_valid_sequence(path)
 
-
+	def __repr__(self):
+		return "\n".join([" ".join([str(item) for item in self.adj_matrix[i]]) for i in range(len(self.adj_matrix))]) 
 
 
 
