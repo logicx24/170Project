@@ -41,6 +41,11 @@ class Graph(object):
 	def __repr__(self):
 		return "\n".join([" ".join([str(item) for item in self.adj_matrix[i]]) for i in range(len(self.adj_matrix))]) 
 
+	def path_cost(self, path):
+		return sum([self.adj_matrix[u][v] for u,v in zip(path[:-1], path[1:])])
+
+	
+
 
 
 				
