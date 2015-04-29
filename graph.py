@@ -1,7 +1,6 @@
 
 class Graph(object):
 
-	# the file in this case is passed in as one big string seperated by \n
 	def __init__(self, file):
 		lines = [line for line in file.split("\n") if line != '']
 		last_index = len(lines) - 1
