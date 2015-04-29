@@ -40,7 +40,7 @@ class CoordGraph(Graph):
 
 
 def break_triangle_inequality(n):
-  # produces an output file specifically designed to mess with MST-based algorithms.
+  # produces an output file intended to mess with MST-based algorithms.
   graph = CoordGraph(n)
   graph.set_rand_coords()
   for node1 in range(n):
@@ -49,7 +49,7 @@ def break_triangle_inequality(n):
       if random.choice([True, False]):
         # Making weight too big
         # FIXME here be more magic numbers
-        graph.set_weight(int(random.uniform(1, 5) * expected_dist), node1, node2)
+        graph.set_weight(min(int(random.uniform(1, 5) * expected_dist), 100), node1, node2)
       else:
         # Making weight what it should be
         graph.set_weight(int(expected_dist), node1, node2)
