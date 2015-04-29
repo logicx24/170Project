@@ -33,8 +33,24 @@ def dynamicSolverFromStart(graph, start):
 				if j == start:
 					continue
 				else:
-					min_node, min_val = smallest_valued_node([(collection[(sort_to_tuple(subset - {j}), i)], collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)) for i in sort_to_tuple(subset) if i != j])
-					collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node)
+					min_val = float("inf")
+					min_node = None
+					
+					for i in sort_to_tuple(subset):
+						if i != j:
+							val = collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)
+							node = collection[(sort_to_tuple(subset - {j}), i)]
+							if val < min_val and cond(j, node, graph):
+								min_val = val
+								min_node = node
+
+					if graph.is_red(j):
+						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=0, red_count=min_node.red_count+1)
+					else:
+						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=min_node.blue_count+1, red_count=0)
+
+					# min_node, min_val = smallest_valued_node([(collection[(sort_to_tuple(subset - {j}), i)], collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)) for i in sort_to_tuple(subset) if i != j])
+					# collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node)
 
 	min_node, val = smallest_valued_node([(collection[(sort_to_tuple(all_nodes), j)], collection[(sort_to_tuple(all_nodes), j)].value) for j in (all_nodes - {start})])
 	return retrace_steps(min_node), val 
@@ -64,6 +80,15 @@ def retrace_steps(node):
 	return lst
 
 
+def cond(vert_number, prev, graph):
+	if graph.is_red(vert_number) and prev.nptsp_valid_red():
+		return True
+	elif prev.nptsp_valid_blue():
+		return True
+	else:
+		return False
+
+
 class DynamicNode():
 
     def __init__(self, node_set, value=0.0, blue_count=0, red_count=0, prev=None):
@@ -73,6 +98,11 @@ class DynamicNode():
         self.red_count = red_count
         self.node_set = node_set
 
+    def nptsp_valid_red(self):
+    	return self.red_count != 3
+
+    def nptsp_valid_blue(self):
+    	return self.blue_count != 3
 
 g = Graph(open('1.in').read())
 print dynamicSolver(g)

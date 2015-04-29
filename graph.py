@@ -45,6 +45,12 @@ class Graph(object):
 	def has_edge(self, node1, node2):
 		return self.weights_matrix[node1][node2] != -1 and self.weights_matrix[node2][node1] != -1
 
+	def is_red(self, node):
+		return self.colors[node] == 'R'
+
+	def is_blue(self, node):
+		return self.colors[node] == 'B'
+
 	def is_valid_hamiltonian(self, path):
 		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
 	
