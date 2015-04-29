@@ -1,5 +1,6 @@
 from graph import Graph
 import random
+import matrix
 
 class CoordGraph(Graph):
   # a class that has nodes with embedded coordinates
@@ -47,7 +48,7 @@ def break_triangle_inequality(n):
       if random.choice([True, False]):
         # Making weight too big
         # FIXME here be more magic numbers
-        graph.set_weight(int(random.uniform(1, 4) * expected_dist), node1, node2)
+        graph.set_weight(int(random.uniform(1, 5) * expected_dist), node1, node2)
       else:
         # Making weight what it should be
         graph.set_weight(int(expected_dist), node1, node2)
