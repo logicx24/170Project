@@ -30,8 +30,7 @@ class Graph(object):
 		for node in seq:
 			if node > self.num_nodes:
 				return False
-
-			color_count = (1 + color_count if last_color == self.colors[node] else 0)
+			color_count += (1 + color_count if last_color == self.colors[node] else 0)
 			if color_count > 3:
 				return False
 			last_color = self.colors[node]
@@ -47,8 +46,11 @@ class Graph(object):
 		return self.weights_matrix[node1][node2] != -1 and self.weights_matrix[node2][node1] != -1
 
 	def is_valid_hamiltonian(self, path):
-		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) # and self.is_valid_sequence(path)
-
+		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
+	
+	def is_valid_hamiltonian_and_seq(self, path):
+		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
+	
 	def __repr__(self):
 		return "\n".join([" ".join([str(item) for item in self.weights_matrix[i]]) for i in range(len(self.weights_matrix))])
 
