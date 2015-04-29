@@ -8,11 +8,12 @@ class CoordGraph(Graph):
   def __init__(self, n):
     # initializes with weights of -1, random colors, and coordinates of None
     self.num_nodes = n
-    self.weights_matrix = [([0]*10)[:] for _ in range(10)]
+    self.weights_matrix = [([0]*n)[:] for _ in range(n)]
     for node1 in range(n):
       for node2 in range(node1+1, n):
         self.set_weight(-1, node1, node2)
-    self.colors = random.shuffle(["R","B"]*(n/2))
+    self.colors = (["R", "B"] * (n/2))[:]
+    random.shuffle(self.colors)
     self.coordinates = [None]*n
 
   def set_coord(self, node, new_coord):
@@ -29,8 +30,8 @@ class CoordGraph(Graph):
 
   def find_dist(self, node1, node2):
     # calculates the distance between 2 nodes based on their coordinates
-    node1_coord = self.coordinates[node1]
-    node2_coord = self.coordinates[node2]
+    node1_coord = self.get_coord(node1)
+    node2_coord = self.get_coord(node2)
     return ((node1_coord[0] - node2_coord[0])**2 + (node1_coord[1] - node2_coord[1])**2)**0.5
 
   def print_coords(self):
