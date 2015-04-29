@@ -32,7 +32,7 @@ def print_matrix(n, matrix, c):
         str(n) + "\n" + output + "\n" + "".join(generate_random_coloring(n)))
 
 for i in range(1, 4):
-    n = 3
+    n = 4
     matrix = generate_matrix(n)
     matrix = sanitize(n, matrix)
     print_matrix(n, matrix, i)

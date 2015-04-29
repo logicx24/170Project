@@ -1,61 +1,6 @@
-# import numpy
-# import itertools
-# from graph import Graph
-
-
-# def sort_to_tuple(my_set):
-# 	return tuple(sorted(list(my_set)))
-
-# def dynamicSolver(graph):
-# 	print graph
-
-#   	n = graph.num_nodes
-# 	best_val = float("inf")
-# 	for start in range(n):
-# 		val = dynamicSolverFromStart(graph, start)
-# 		if val < best_val:
-# 			best_val = val
-# 	return best_val
-
-# def dynamicSolverFromStart(graph, start):
-#   	n = graph.num_nodes
-# 	all_nodes = set(range(n))
-
-# 	collection = {}
-# 	collection[((start,), start)] = 0
-# 	for s in range(2, n+1):
-# 		all_nodes_but_one = all_nodes - {start}
-# 		for subset in itertools.combinations(all_nodes_but_one, s-1):
-# 			subset = set(subset).union({start}) 								# add in the first node to the subset
-# 			collection[(sort_to_tuple(subset), start)] = float("inf")
-# 			for j in sort_to_tuple(subset):
-# 				if j == start:
-# 					continue
-# 				else:
-# 					min_val = float("inf")
-# 					for i in sort_to_tuple(subset):
-# 						if i != j:
-# 							val = collection[(sort_to_tuple(subset - {j}), i)] + graph.get_weight(i, j)
-# 							min_val = min(min_val, val)
-# 					collection[(sort_to_tuple(subset), j)] = min_val
-# 	return min(collection[(sort_to_tuple(all_nodes), j)] for j in (all_nodes - {start}))
-
-# g = Graph(open('1.in').read())
-# print dynamicSolver(g)
-
-# class DynamicNode():
-
-#     def __init__(self, value=0, blue_count=0, red_count=0, prev=None):
-#         self.value = value
-#         self.prev = prev
-#         self.blue_count = blue_count
-#         self.red_count = red_count
-
-
 import numpy
 import itertools
 from graph import Graph
-
 
 def sort_to_tuple(my_set):
 	return tuple(sorted(list(my_set)))
@@ -71,7 +16,7 @@ def dynamicSolver(graph):
 		if val < best_val:
 			best_val = val
 			best_path = path
-	return path, best_val
+	return best_path, best_val
 
 def dynamicSolverFromStart(graph, start):
   	n = graph.num_nodes
@@ -90,9 +35,7 @@ def dynamicSolverFromStart(graph, start):
 				else:
 					min_node, min_val = smallest_valued_node([(collection[(sort_to_tuple(subset - {j}), i)], collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)) for i in sort_to_tuple(subset) if i != j])
 					collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node)
-					# collection[(sort_to_tuple(subset), j)] = min(collection[(sort_to_tuple(subset - {j}), i)] + graph.get_weight(i, j) for i in sort_to_tuple(subset) if i != j)
-	
-	# return min(collection[(sort_to_tuple(all_nodes), j)] + graph.get_weight(start, j) for j in (all_nodes - {start}))
+
 	min_node, val = smallest_valued_node([(collection[(sort_to_tuple(all_nodes), j)], collection[(sort_to_tuple(all_nodes), j)].value) for j in (all_nodes - {start})])
 	return retrace_steps(min_node), val 
 
