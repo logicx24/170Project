@@ -7,7 +7,7 @@ def starter_population(graph, num, starter):
 	res = []
 	for path in itertools.permutations(starter):
 		path = list(path)
-		if graph.is_valid_sequence(list(path)) and graph.is_valid_hamiltonian(list(path)):
+		if graph.is_valid_hamiltonian_and_seq(path):
 			res.append(path)
 		if len(res) >= num:
 			return res
@@ -52,4 +52,27 @@ def mutation(parent1, mutation_rate):
 		if random.random() < mutation_rate:
 			parent1[first_index], parent1[second_index] = parent1[second_index], parent1[first_index]
 	return parent1
+
+def one_away(path):
+	splits = [(path[:i], path[i:]) for i in range(len(path) + 1)]
+	transposes = [a + [b[1]] + [b[0]] + b[2:] for a, b in splits if len(b)>1]
+	#print(transposes)
+	return [trans for trans in transposes if graph.is_valid_hamiltonian_and_seq(trans)]
+
+def best_path(path, graph):
+	tmp = one_away(path)
+	
+	two = []
+	for e1 in tmp:
+		two.extend(one_away(e1))
+
+	three = []
+	for e2 in two:
+		three.extend(one_away(e2))
+
+	return min(list(tmp + two + three), key=graph.path_cost)
+
+
+
+
 
