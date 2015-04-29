@@ -16,6 +16,10 @@ class Graph(object):
 	def get_weight(self, node1, node2):
 		return self.weights_matrix[node1][node2]
 
+	def remove_edge(self, node1, node2):
+		self.weights_matrix[node1][node2] = -1
+		self.weights_matrix[node2][node1] = -1
+
 	def is_valid_sequence(self, seq):
 		color_count = 0
 		last_color = ""
@@ -28,8 +32,23 @@ class Graph(object):
 			last_color = self.colors[node]
 		return True
 
+	def is_valid_path(self, path):
+		for u, v in zip(path[:-1], path[1:]):
+			if not self.has_edge(u, v):
+				return False
+		return True
+
+	def has_edge(self, node1, node2):
+		return self.adj_matrix[node1][node2] != -1 and self.adj_matrix[node2][node1] != -1
+
 	def is_valid_hamiltonian(self, path):
-		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)
+		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) and self.is_valid_sequence(path)
+
+	def __repr__(self):
+		return "\n".join([" ".join([str(item) for item in self.adj_matrix[i]]) for i in range(len(self.adj_matrix))])
+
+	def path_cost(self, path):
+		return sum([self.adj_matrix[u][v] for u,v in zip(path[:-1], path[1:])])
 
 
 
