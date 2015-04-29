@@ -17,7 +17,11 @@ def break_greedy(n):
   random.shuffle(red_nodes)
   random.shuffle(blue_nodes)
   rand_path = [val for pair in zip(red_nodes, blue_nodes) for val in pair]
+  end_node = rand_path[-1]
   for u, v in zip(rand_path[:-1], rand_path[1:]):
     graph.set_weight(0, u, v)
+  for other_node in range(n):
+    if end_node != other_node:
+      graph.set_weight(50, other_node, end_node)
   graph.set_weight(100, rand_path[-1], rand_path[-2])
   return graph
