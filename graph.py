@@ -33,7 +33,7 @@ class Graph(object):
 		return True
 
 	def has_edge(self, node1, node2):
-		return self.adj_matrix[node1][node2] != None
+		return self.adj_matrix[node1][node2] != -1 and self.adj_matrix[node2][node1] != -1
 
 	def is_valid_hamiltonian(self, path):
 		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) and self.is_valid_sequence(path)
@@ -44,7 +44,7 @@ class Graph(object):
 	def path_cost(self, path):
 		return sum([self.adj_matrix[u][v] for u,v in zip(path[:-1], path[1:])])
 
-	
+
 
 
 
