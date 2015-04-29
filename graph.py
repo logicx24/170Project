@@ -103,4 +103,3 @@ class Graph(object):
 		for edge in graph2.all_edges:
 			graph2.set_weight(graph.true_weight(edge), edge[0], edge[1])
 		return graph2
-
