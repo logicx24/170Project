@@ -64,12 +64,35 @@ class Graph(object):
 		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge)]
 
 	# returns a greedy solution
-	def greedy_algorithm(self):
+	def greedy(self):
 		weighter = lambda edge: self.get_weight(edge[0], edge[1])
 		path = list(min(self.all_edges, key=weighter))
 		while not self.is_valid_hamiltonian(path):
 			left_endpoint, right_endpoint = path[0], path[-1]
 			new_edge = min(self.valid_options(path), key=weighter)
+			new_node = new_edge[0]
+			if left_endpoint in new_edge:
+				if left_endpoint == new_edge[0]:
+					new_node = new_edge[1]
+				path = [new_node] + path
+			else:
+				if right_endpoint == new_edge[0]:
+					new_node = new_edge[1]
+				path = path + [new_node]
+		return path
+
+	def smart_greedy(self):
+		weighter = lambda edge: self.get_weight(edge[0], edge[1])
+		new_weighter = lambda edge, node: self.f(edge, edge[0] if edge[1] == node else edge[1])
+		path = list(min(self.all_edges, key=weighter))
+		while not self.is_valid_hamiltonian(path):
+			left_endpoint, right_endpoint = path[0], path[-1]
+			left_weighter = lambda edge: self.f(edge, edge[0] if edge[1] == left_endpoint else edge[1])
+			right_weighter = lambda edge: self.f(edge, edge[0] if edge[1] == right_endpoint else edge[1])
+			options = self.valid_options(path)
+			left_edges = [edge for edge in options if left_endpoint in edge]
+			right_edges = [edge for edge in options if right_endpoint in edge]
+			new_edge = min([min(left_edges, key=left_weighter), min(right_edges, key=right_weighter)], key=weighter)
 			new_node = new_edge[0]
 			if left_endpoint in new_edge:
 				if left_endpoint == new_edge[0]:
@@ -96,7 +119,7 @@ class Graph(object):
 		return self.get_weight(edge[0], edge[1])/self.avg(node)
 
 	def true_weight(self, edge):
-		return self.f(edge, edge[0]) + self.f(edge, edge[1])
+		return self.get_weight(edge[0], edge[1])*(self.f(edge, edge[0]) + self.f(edge, edge[1]))
 
 	def reweight(self):
 		graph2 = self.duplicate()
@@ -107,10 +130,42 @@ class Graph(object):
 	def cost_comparison(self, other_graph=None):
 		if other_graph is None:
 			other_graph = self.reweight()
-		return self.path_cost(self.greedy_algorithm()) - self.path_cost(other_graph.greedy_algorithm())
+		return self.path_cost(self.greedy()) - self.path_cost(other_graph.greedy())
 
 	def is_same(self, other_graph):
 		for edge in self.all_edges:
 			if self.get_weight(edge[0], edge[1]) != other_graph.get_weight(edge[0], edge[1]):
 				return False
 		return True
+
+	def tsp_naive(self):
+		nodes = list(range(self.num_nodes))
+		return min(permutations(nodes), key=lambda lst: self.path_cost(lst))
+
+	def best_cost(self):
+		return self.path_cost(self.tsp_naive())
+
+	def weights_of_path(self, path):
+		return [self.get_weight(edge[0], edge[1]) for edge in zip(path[:-1], path[1:])]
+
+def run_to_convergence(graph):
+	graph2 = graph.reweight()
+	i = 1
+	while not graph2.is_same(graph2.reweight()):
+		print i
+		graph2 = graph2.reweight()
+		i += 1
+	return graph2
+
+def permutations(lst):
+	if len(lst) < 2:
+		return [lst]
+	perms_found = []
+	for index, element in enumerate(lst):
+		rest = lst[:index] + lst[index+1:]
+		perms = permutations(rest)
+		for perm in perms:
+			perms_found.append([element] + perm)
+	return perms_found
+	#return [[element] + perm for perm in permutations(lst[:lst.index(element)] + lst[lst.index(element)+1:]) for element in lst]
+

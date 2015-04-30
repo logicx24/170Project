@@ -31,8 +31,8 @@ def print_matrix(n, matrix, c):
     open("{0}.in".format(c), 'w').write(
         str(n) + "\n" + output + "\n" + "".join(generate_random_coloring(n)))
 
-for i in range(1, 4):
-    n = 20
-    matrix = generate_matrix(n)
-    matrix = sanitize(n, matrix)
-    print_matrix(n, matrix, i)
+def write(n=50):
+  for i in range(1, 4):
+      matrix = generate_matrix(n)
+      matrix = sanitize(n, matrix)
+      print_matrix(n, matrix, i)
