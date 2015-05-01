@@ -26,6 +26,14 @@ class Graph(object):
 	def get_weight(self, node1, node2):
 		return self.weights_matrix[node1][node2]
 
+	def get_avg_weight(self):
+		weight_sum = 0.0
+		num_edges = 0.5 * self.num_nodes * (self.num_nodes - 1)
+		for node1 in range(self.num_nodes):
+			for node2 in range(node1+1, self.num_nodes):
+				weight_sum += self.get_weight(node1, node2)
+		return weight_sum / num_edges
+
 	def remove_edge(self, node1, node2):
 		self.weights_matrix[node1][node2] = -1
 		self.weights_matrix[node2][node1] = -1
@@ -75,7 +83,12 @@ class Graph(object):
 		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
 
 	def path_cost(self, path):
-		return sum([self.weights_matrix[u][v] for u,v in zip(path[:-1], path[1:])])
+		return sum([self.get_weight(u, v) for u,v in zip(path[:-1], path[1:])])
+
+	def trace_path(self, path):
+		weights = [self.get_weight(u, v) for u,v in zip(path[:-1], path[1:])]
+		weights.insert(0, 0)
+		return [str(node)+":"+str(weight) for node, weight in zip(path, weights)]
 
 	def creates_cycle(self, edge, path):
 		""" Checks to see if adding a given EDGE creates a cycle given a PATH """
