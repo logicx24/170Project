@@ -86,9 +86,10 @@ class Graph(object):
 		return sum([self.get_weight(u, v) for u,v in zip(path[:-1], path[1:])])
 
 	def trace_path(self, path):
-		weights = [self.get_weight(u, v) for u,v in zip(path[:-1], path[1:])]
-		weights.insert(0, 0)
-		return [str(node)+":"+str(weight) for node, weight in zip(path, weights)]
+		weights = self.weights_of_path(path)
+		path_colors = [self.colors[node] for node in path]
+		weights.insert(0, 0) # the first node on the path doesn't have an edge going into it
+		return [str(node)+str(color)+":"+str(weight) for node, color, weight in zip(path, path_colors, weights)]
 
 	def creates_cycle(self, edge, path):
 		""" Checks to see if adding a given EDGE creates a cycle given a PATH """
@@ -98,8 +99,13 @@ class Graph(object):
 
 	def valid_options(self, path):
 		""" Given a path, the list of edges that extend from the endpoints of the graph
-		and do not create cycles. """
-		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge)]
+		and do not create cycles AND do not violate the max-3-node constraint."""
+		next_valid_colors = ["R", "B"]
+		if len(path) >= 3:
+			last_three_node_colors = [self.colors[node] for node in path[-3:]]
+			if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
+				next_valid_colors.remove(last_three_node_colors[0])
+		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and (path[0] in next_valid_colors or path[-1] in next_valid_colors)]
 
 	# APPROXIMATION ALGORITHMS
 
@@ -113,7 +119,7 @@ class Graph(object):
 		elif heuristic is Graph.SMART:
 			heuristic_func = self.smart_heuristic
 
-		# choose the first edge just as the cheapeset one in the graph
+		# choose the first edge just as the cheapest one in the graph
 		path = list(min(self.all_edges, key=lambda edge: self.get_weight(edge[0], edge[1])))
 
 		while not self.is_valid_hamiltonian(path):
