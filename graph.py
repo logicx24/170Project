@@ -140,7 +140,7 @@ class Graph(object):
 
 	# TOOLS USED IN HEURISTICS
 
-	# --- tools for smart
+	# --- tools for smart greedy
 
 	def family(self, node):
 		return [edge for edge in self.all_edges if node in edge]
