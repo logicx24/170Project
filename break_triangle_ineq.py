@@ -25,7 +25,7 @@ class CoordGraph(Graph):
   def set_rand_coords(self):
     # FIXME here be magic numbers
     for node in range(self.num_nodes):
-      coordinates = (random.randint(0, 20), random.randint(0, 20))
+      coordinates = (random.randint(0, 10), random.randint(0, 10))
       self.set_coord(node, coordinates)
 
   def find_dist(self, node1, node2):
