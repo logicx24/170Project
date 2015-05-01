@@ -1,6 +1,6 @@
 import numpy
 import itertools
-from graph import Graph
+from graph import Graph, COLOR_LIMIT
 
 def sort_to_tuple(my_set):
 	return tuple(sorted(list(my_set)))
@@ -44,10 +44,19 @@ def dynamicSolverFromStart(graph, start):
 								min_val = val
 								min_node = node
 
-					if graph.is_red(j):
-						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=0, red_count=min_node.red_count+1)
+					if min_node == None:
+						new_red = 0
+						new_blue = 0
 					else:
-						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=min_node.blue_count+1, red_count=0)
+						new_red = min_node.red_count + 1
+						new_blue = min_node.blue_count + 1
+
+					if graph.is_red(j):
+						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=0, red_count=new_red)
+						if collection[(sort_to_tuple(subset), j)].red_count > 3: print "VIOLATION RED"
+					else:
+						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=new_blue, red_count=0)
+						if collection[(sort_to_tuple(subset), j)].blue_count > 3: print "VIOLATION BLUE"
 
 					# min_node, min_val = smallest_valued_node([(collection[(sort_to_tuple(subset - {j}), i)], collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)) for i in sort_to_tuple(subset) if i != j])
 					# collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node)
@@ -83,7 +92,7 @@ def retrace_steps(node):
 def cond(vert_number, prev, graph):
 	if graph.is_red(vert_number) and prev.nptsp_valid_red():
 		return True
-	elif prev.nptsp_valid_blue():
+	elif graph.is_blue(vert_number) and prev.nptsp_valid_blue():
 		return True
 	else:
 		return False
@@ -99,10 +108,10 @@ class DynamicNode():
         self.node_set = node_set
 
     def nptsp_valid_red(self):
-    	return self.red_count != 3
+    	return self.red_count != COLOR_LIMIT
 
     def nptsp_valid_blue(self):
-    	return self.blue_count != 3
+    	return self.blue_count != COLOR_LIMIT
 
 g = Graph(open('1.in').read())
 print dynamicSolver(g)
