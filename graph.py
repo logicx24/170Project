@@ -105,7 +105,7 @@ class Graph(object):
 			last_three_node_colors = [self.colors[node] for node in path[-3:]]
 			if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
 				next_valid_colors.remove(last_three_node_colors[0])
-		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and (path[0] in next_valid_colors or path[-1] in next_valid_colors)]
+		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and (self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
 
 	# APPROXIMATION ALGORITHMS
 
