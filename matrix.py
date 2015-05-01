@@ -33,7 +33,7 @@ def print_matrix(n, matrix, c):
 
 
 def write(n=50):
-  for i in range(1, 4):
+  for i in range(4, 7):
       matrix = generate_matrix(n)
       matrix = sanitize(n, matrix)
       print_matrix(n, matrix, i)
