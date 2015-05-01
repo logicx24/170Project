@@ -1,4 +1,6 @@
 
+COLOR_LIMIT = 3
+
 class Graph(object):
 
 	# heuristic keys
@@ -134,6 +136,16 @@ class Graph(object):
 				path = path + [new_node]
 
 		return path
+
+	def is_valid_coloring(self, path):
+		"""
+			:param: path (array) - the array to do things to
+			:return: True if the coloring is valid. False otherwise 
+		"""
+		colors = [self.colors[city] for city in path]
+		colors_string = ''.join(str(x) for x in colors)
+
+		return "R"*COLOR_LIMIT not in colors_string and "B"*COLOR_LIMIT not in colors_string
 
 	# HEURISTICS FOR GREEDY ALGORITHMS
 
