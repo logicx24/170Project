@@ -82,7 +82,7 @@ class Graph(object):
 
 	def is_valid_hamiltonian(self, path):
 		""" Self explanatory """
-		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
+		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) and self.is_valid_coloring(path)
 
 	def is_valid_hamiltonian_and_seq(self, path):
 		return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
@@ -113,6 +113,7 @@ class Graph(object):
 
 		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
 
+	# LOOOOOL OMG GET IT?????????????
 	def append_edge(self, path, edge):
 		path = path[:]
 		new_edge = (edge[0], edge[1])
@@ -127,7 +128,6 @@ class Graph(object):
 				new_node = new_edge[1]
 			path = path + [new_node]
 		return path
-
 
 	# APPROXIMATION ALGORITHMS
 
