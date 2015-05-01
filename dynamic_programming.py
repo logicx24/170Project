@@ -53,10 +53,31 @@ def dynamicSolverFromStart(graph, start):
 
 					if graph.is_red(j):
 						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=0, red_count=new_red)
-						if collection[(sort_to_tuple(subset), j)].red_count > 3: print "VIOLATION RED"
+						# if collection[(sort_to_tuple(subset), j)].red_count > COLOR_LIMIT: print "VIOLATION RED"
 					else:
 						collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node, blue_count=new_blue, red_count=0)
-						if collection[(sort_to_tuple(subset), j)].blue_count > 3: print "VIOLATION BLUE"
+						# if collection[(sort_to_tuple(subset), j)].blue_count > COLOR_LIMIT: print "VIOLATION BLUE"
+
+
+					new_node = collection[(sort_to_tuple(subset), j)]
+
+					#### FOR TESTING ONLY ####
+					if new_node.prev != None:
+						vertex_added = list(new_node.node_set - new_node.prev.node_set)[0]
+
+						if new_node.prev.red_count == COLOR_LIMIT and graph.get_color(vertex_added) != 'B':
+							print "VIOLATION: Added 4th RED"
+						elif new_node.prev.blue_count == COLOR_LIMIT and graph.get_color(vertex_added) != 'R':
+							print "VIOLATION: Added 4th BLUE"
+
+						# print "ADDED ", graph.get_color(vertex_added)
+						# print "NEW RED: ", new_node.red_count
+						# print "OLD RED: ", new_node.prev.red_count
+						# print "NEW BLUE: ", new_node.blue_count
+						# print "OLD BLUE: ", new_node.prev.blue_count, "\n"
+
+					###########################
+
 
 					# min_node, min_val = smallest_valued_node([(collection[(sort_to_tuple(subset - {j}), i)], collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)) for i in sort_to_tuple(subset) if i != j])
 					# collection[(sort_to_tuple(subset), j)] = DynamicNode(subset, value=min_val, prev=min_node)

@@ -49,6 +49,9 @@ class Graph(object):
 	def is_blue(self, node):
 		return self.colors[node] == 'B'
 
+	def get_color(self, node):
+		return self.colors[node]
+
 
 	def __repr__(self):
 		return str(self.num_nodes) + "\n" + \
