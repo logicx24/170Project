@@ -102,12 +102,29 @@ class Graph(object):
 	def valid_options(self, path):
 		""" Given a path, the list of edges that extend from the endpoints of the graph
 		and do not create cycles AND do not violate the max-3-node constraint."""
-		next_valid_colors = ["R", "B"]
-		if len(path) >= 3:
-			last_three_node_colors = [self.colors[node] for node in path[-3:]]
-			if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
-				next_valid_colors.remove(last_three_node_colors[0])
-		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and (self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
+		#next_valid_colors = ["R", "B"]
+		#if len(path) >= 3:
+		#	last_three_node_colors = [self.colors[node] for node in path[-3:]]
+		#	if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
+		#		next_valid_colors.remove(last_three_node_colors[0])
+
+		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
+
+	def append_edge(self, path, edge):
+		path = path[:]
+		new_edge = (edge[0], edge[1])
+		left_endpoint, right_endpoint = path[0], path[-1]
+		new_node = new_edge[0]
+		if left_endpoint in new_edge:
+			if left_endpoint == new_edge[0]:
+				new_node = new_edge[1]
+			path = [new_node] + path
+		else:
+			if right_endpoint == new_edge[0]:
+				new_node = new_edge[1]
+			path = path + [new_node]
+		return path
+
 
 	# APPROXIMATION ALGORITHMS
 
@@ -146,7 +163,7 @@ class Graph(object):
 	def is_valid_coloring(self, path):
 		"""
 			:param: path (array) - the array to do things to
-			:return: True if the coloring is valid. False otherwise 
+			:return: True if the coloring is valid. False otherwise
 		"""
 		colors = [self.colors[city] for city in path]
 		colors_string = ''.join(str(x) for x in colors)
