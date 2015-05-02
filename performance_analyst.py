@@ -1,5 +1,5 @@
 
-# testing interface
+# performance analyst interface
 
 from graph import Graph
 import matrix

@@ -47,7 +47,7 @@ def break_triangle_inequality(n):
     for node2 in range(node1+1, n):
       expected_dist = graph.find_dist(node1, node2)
       if random.choice([True, False]):
-        # Making weight too big
+        # Making weight too big with probability 0.5
         # FIXME here be more magic numbers
         graph.set_weight(min(int(random.uniform(1, 5) * expected_dist), 100), node1, node2)
       else:
