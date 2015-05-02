@@ -134,5 +134,5 @@ class DynamicNode():
     def nptsp_valid_blue(self):
     	return self.blue_count != COLOR_LIMIT
 
-g = Graph(open('1.in').read())
-print dynamicSolver(g)
+# g = Graph(open('1.in').read())
+# print dynamicSolver(g)

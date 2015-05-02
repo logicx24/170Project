@@ -171,7 +171,7 @@ class Graph(object):
 		colors = [self.colors[city] for city in path]
 		colors_string = ''.join(str(x) for x in colors)
 
-		return "R"*COLOR_LIMIT not in colors_string and "B"*COLOR_LIMIT not in colors_string
+		return "R"*(COLOR_LIMIT+1) not in colors_string and "B"*(COLOR_LIMIT+1) not in colors_string
 
 	# HEURISTICS FOR GREEDY ALGORITHMS
 
