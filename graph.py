@@ -7,6 +7,7 @@ class Graph(object):
 	# heuristic keys
 	BASIC = 1
 	SMART = 2
+	BINOCULARS = 3
 
 	def __init__(self, file):
 		lines = [line for line in file.split("\n") if line != '']
@@ -103,6 +104,23 @@ class Graph(object):
 			return False
 		return edge[0] in path and edge[1] in path
 
+	def is_last_color(self, path, edge):
+		new_path = self.append_edge(path, edge)
+		num_blues = sum([1 for node in new_path if self.is_blue(node)])
+		num_reds = sum([1 for node in new_path if self.is_red(node)])
+		num_blues_left = self.num_nodes / 2 - num_blues
+		num_reds_left = self.num_nodes / 2 - num_reds
+
+		if num_blues_left == 0:
+			return num_reds_left > 3
+		if num_reds_left == 0:
+			return num_blues_left > 3
+
+		if num_reds_left > num_blues_left:
+			return (num_reds_left - 3) / num_blues_left > 3
+
+		return (num_blues_left - 3) / num_reds_left > 3
+
 	def valid_options(self, path):
 		""" Given a path, the list of edges that extend from the endpoints of the graph
 		and do not create cycles AND do not violate the max-3-node constraint."""
@@ -112,7 +130,7 @@ class Graph(object):
 		#	if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
 		#		next_valid_colors.remove(last_three_node_colors[0])
 
-		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
+		return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(path, edge)] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
 
 	# LOOOOOL OMG GET IT?????????????
 	# YES SAHIL WE GET IT
@@ -134,7 +152,7 @@ class Graph(object):
 	# APPROXIMATION ALGORITHMS
 
 	# todo: allow the selection of the first edge to be different or to even be iterative
-	def greedy(self, heuristic=BASIC):
+	def greedy(self, heuristic=BASIC, path=None):
 		""" The implementation of the greedy solution without any special stuff """
 
 		# set the default heurisitic if none are provided
@@ -142,10 +160,17 @@ class Graph(object):
 			heuristic_func = self.general_heuristic
 		elif heuristic is Graph.SMART:
 			heuristic_func = self.smart_heuristic
+		elif heuristic is Graph.BINOCULARS:
+			heuristic_func = self.binoculars_heuristic
+
+		cheapest_path = None
 
 		# choose the first edge just as the cheapest one in the graph
 		# FIXME breaks if there are no valid options to consider
-		path = list(min(self.all_edges, key=lambda edge: self.get_weight(edge[0], edge[1])))
+		print_path = False
+		if path is None:
+			path = list(min(self.all_edges, key=lambda edge: self.get_weight(edge[0], edge[1])))
+			print_path = True
 
 		while not self.is_valid_hamiltonian(path):
 			left_endpoint, right_endpoint = path[0], path[-1]
@@ -163,6 +188,9 @@ class Graph(object):
 				if right_endpoint == new_edge[0]:
 					new_node = new_edge[1]
 				path = path + [new_node]
+
+			if False and print_path:
+				print path
 
 		return path
 
@@ -182,6 +210,9 @@ class Graph(object):
 		edges = self.valid_options(path)
 		return min(edges, key=lambda edge: self.get_weight(edge[0], edge[1]))
 
+	# more like slightly educated heuristic. like barely high school graduate who enlisted in the marines
+	# and served 4 years, left with a honorable discharge, became a carpenter in a quiet suburban neighborhood
+	# in the midwest, lived a simple, happy life.
 	def smart_heuristic(self, path):
 		left_endpoint, right_endpoint = path[0], path[-1]
 		weighter = lambda edge: self.get_weight(edge[0], edge[1])
@@ -190,7 +221,18 @@ class Graph(object):
 		edges = self.valid_options(path)
 		left_edges = [edge for edge in edges if left_endpoint in edge]
 		right_edges = [edge for edge in edges if right_endpoint in edge]
-		return min([min(left_edges, key=left_weighter), min(right_edges, key=right_weighter)], key=weighter)
+		if left_edges and right_edges:
+			return min([min(left_edges, key=left_weighter), min(right_edges, key=right_weighter)], key=weighter)
+		elif left_edges:
+			return min(left_edges, key=left_weighter)
+		else:
+			return min(right_edges, key=right_weighter)
+
+	def binoculars_heuristic(self, path):
+		edges = self.valid_options(path)
+		paths = [self.append_edge(path, edge) for edge in edges]
+		best_path = min(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
+		return edges[paths.index(best_path)]
 
 	# TOOLS USED IN HEURISTICS
 
@@ -243,8 +285,8 @@ class Graph(object):
 		return self.path_cost(self.tsp_naive())
 
 	def tsp_naive(self):
-		nodes = list(range(self.num_nodes))
-		return min(permutations(nodes), key=lambda lst: self.path_cost(lst))
+		good_paths = list(filter(lambda lst: self.is_valid_hamiltonian(lst), permutations(list(range(0, self.num_nodes)))))
+		return min(good_paths, key=lambda lst: self.path_cost(lst))
 
 	# DEPRECATED
 
