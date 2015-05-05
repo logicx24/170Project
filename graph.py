@@ -242,15 +242,17 @@ class Graph(object):
 
 	# the wisest heuristic of them all
 	def guru_heuristic(self, path, edges=None):
-		heuristics = heuristics or [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
+		heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
 		edges = self.valid_options(path)
 		scores = dict((edge, 0) for edge in edges)
 		prizes = list(map(lambda a: a**3, list(range(0, len(edges)))))
-		for heuristic in heuristics:
-			heuristic_func = self.get_heuristic(heuristic)
-			rankings = heuristic_func(path, edges)
-			for index, edge in enumerate(rankings):
-				scores[edge] += prizes[index]
+		# unweighted
+		for graph in [self, self.reweight()]:
+			for heuristic in heuristics:
+				heuristic_func = graph.get_heuristic(heuristic)
+				rankings = heuristic_func(path, edges)
+				for index, edge in enumerate(rankings):
+					scores[edge] += prizes[index]
 		best_score = min(scores.values())
 		best_edges = [edge for edge in edges if scores[edge] == best_score]
 		return best_edges
