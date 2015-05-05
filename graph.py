@@ -1,6 +1,16 @@
 import numpy as np
+import time
 
 COLOR_LIMIT = 3
+
+def timer(func):
+  start, end = None, None
+  def helper(*args):
+    start = time.time()
+    result = func(*args)
+    end = time.time()
+    print "Time elapsed: {0}".format(end-start)
+    return result
 
 class Graph(object):
 
@@ -12,12 +22,12 @@ class Graph(object):
 	STUBBORN = 5
 
 	def __init__(self, file):
-		lines = [line for line in file.split("\n") if line != '']
+		lines = [line.strip() for line in file.split("\n") if line != '']
 		last_index = len(lines) - 1
 		self.file = file
 		self.num_nodes = int(lines[0])
 		self.colors = [color for color in lines[last_index]]
-		self.weights_matrix = [[int(weight) for weight in line.split(" ")] for line in lines[1:last_index]]
+		self.weights_matrix = [[int(weight) for weight in line.strip().split(" ")] for line in lines[1:last_index]]
 		self.all_edges = []
 		for i in range(self.num_nodes):
 			for j in range(i+1, self.num_nodes):
@@ -136,6 +146,7 @@ class Graph(object):
 
 	# LOOOOOL OMG GET IT?????????????
 	# YES SAHIL WE GET IT
+	# NO I DONT THINK YOU DO. ITS FUCKING APPENDAGE. APPENDAGE. APPEEEENDDDAGGEE.
 	def append_edge(self, path, edge):
 		path = path[:]
 		new_edge = (edge[0], edge[1])
@@ -193,7 +204,7 @@ class Graph(object):
 					new_node = new_edge[1]
 				path = path + [new_node]
 
-			if False and print_path:
+			if print_path:
 				print path
 
 		return path
@@ -242,12 +253,12 @@ class Graph(object):
 		return [edges[paths.index(best_path)] for best_path in best_paths]
 
 	# the wisest heuristic of them all
-	def guru_heuristic(self, path, edges=None):
+	def guru_heuristic(self, path, edges=None, weights=None):
 		heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
-		weights = [0.2, 0.5, 2]
-		edges = self.valid_options(path)
+		weights = weights or [0.5, 0.2, 2]
+		edges = edges or self.valid_options(path)
 		scores = dict((edge, 0) for edge in edges)
-		prizes = list(map(lambda a: a**3, list(range(0, len(edges)))))
+		prizes = list(map(lambda a: a**3, list(range(0, len(edges)))))[::-1]
 		# unweighted
 		for graph in [self, self.reweight()]:
 			for h_index, heuristic in enumerate(heuristics):
@@ -255,7 +266,7 @@ class Graph(object):
 				rankings = heuristic_func(path, edges)
 				for index, edge in enumerate(rankings):
 					scores[edge] += prizes[index] * weights[h_index]
-		best_score = min(scores.values())
+		best_score = max(scores.values())
 		best_edges = [edge for edge in edges if scores[edge] == best_score]
 		return best_edges
 
