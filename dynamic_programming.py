@@ -3,8 +3,7 @@ import itertools
 from graph import Graph, COLOR_LIMIT
 import math
 
-def cluster(graph):
-  k = 3
+def cluster(graph, k):
   d = {}
   for node in range(graph.num_nodes):
     d[node] = graph.bellman_ford(node)

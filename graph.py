@@ -18,7 +18,6 @@ class Edge(object):
     def __le__(self, other):
         return self.lt(other) or self.weight == other.weight
 
-<<<<<<< HEAD
 	# heuristic keys
 	BASIC = 1
 	SMART = 2
