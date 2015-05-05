@@ -20,6 +20,7 @@ class Graph(object):
 	BINOCULARS = 3
 	GURU = 4
 	STUBBORN = 5
+	SMART_BINOCULARS = 6
 
 	def __init__(self, file):
 		lines = [line.strip() for line in file.split("\n") if line != '']
@@ -27,7 +28,10 @@ class Graph(object):
 		self.file = file
 		self.num_nodes = int(lines[0])
 		self.colors = [color for color in lines[last_index]]
-		self.weights_matrix = [[int(weight) for weight in line.strip().split(" ")] for line in lines[1:last_index]]
+		if "\t" not in lines[3]:
+			self.weights_matrix = [[int(weight) for weight in line.strip().split(" ") if weight != ''] for line in lines[1:last_index]]
+		else:
+			self.weights_matrix = [[int(weight) for weight in line.strip().split("\t") if weight != ''] for line in lines[1:last_index]]
 		self.all_edges = []
 		for i in range(self.num_nodes):
 			for j in range(i+1, self.num_nodes):
@@ -204,7 +208,7 @@ class Graph(object):
 					new_node = new_edge[1]
 				path = path + [new_node]
 
-			if print_path:
+			if False and print_path:
 				print path
 
 		return path
@@ -252,6 +256,13 @@ class Graph(object):
 		# return edges[paths.index(best_path)]
 		return [edges[paths.index(best_path)] for best_path in best_paths]
 
+	def smart_binoculars_heuristic(self, path, edges=None):
+		edges = edges or self.valid_options(path)
+		paths = [self.append_edge(path, edge) for edge in edges]
+		best_paths = sorted(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
+		# return edges[paths.index(best_path)]
+		return [edges[paths.index(best_path)] for best_path in best_paths]
+
 	# the wisest heuristic of them all
 	def guru_heuristic(self, path, edges=None, weights=None):
 		heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
@@ -287,7 +298,9 @@ class Graph(object):
 		return sum([edge_weight(edge) for edge in edges])/float(len(edges))
 
 	def f(self, edge, node):
-		return self.get_weight(edge[0], edge[1])/self.avg(node)
+		a = self.avg(node)
+		a = a if a > 0 else 1
+		return self.get_weight(edge[0], edge[1])/a
 
 	def true_weight(self, edge):
 		return self.get_weight(edge[0], edge[1])*(self.f(edge, edge[0]) + self.f(edge, edge[1]))
@@ -343,6 +356,8 @@ class Graph(object):
 			heuristic_func = self.guru_heuristic
 		elif heuristic is Graph.STUBBORN:
 			heuristic_func = self.stubborn_heuristic
+		elif heuristic is Graph.SMART_BINOCULARS:
+			heuristic_func = self.smart_binoculars_heuristic
 
 		return heuristic_func
 
