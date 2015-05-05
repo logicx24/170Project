@@ -1,4 +1,4 @@
-import graph
+import graph as gr
 import random
 import numpy as np 
 
@@ -17,21 +17,28 @@ def kruskals_path(graph):
         
         u, v = edge
 
+        # add in the edge
+        weight = graph.get_weight(u, v)
+        path_graph.add_edge(weight, u, v)
+
+
         # if we're about to create a cycle, we don't add the edge
         if union_find.FindLabel(u) == union_find.FindLabel(v):
+            path_graph.remove_edge(u, v)
             continue
 
         # if the edge is going to create a fork, we don't add the edge
-        if not no_forks_found(graph, edge):
+        if not no_forks_found(path_graph, edge):
+            path_graph.remove_edge(u, v)
             continue
 
         # Note: at this point we are guaranteed to have an acyclic path.
         # now, we check to see if that there are no RRRR and BBBB instances
-        if not new_coloring_is_valid(graph, edge_added):
+        if not new_coloring_is_valid(path_graph, edge):
+            path_graph.remove_edge(u, v)
             continue
 
         # No cycles. Guaranteed a path. And colors work. Now we add the edge.
-        path_graph.add_edge(u, v)
         union_find.Join(u, v)
 
     # recovering a path
@@ -41,34 +48,26 @@ def kruskals_path(graph):
             endpoint = node
             break
 
-    # # if the edge you added has nodes of differing colors, you're good.
-    # if graph.get_color(u) != graph.get_color(v):
-    #     return True
-    
-    # color = graph.get_color(u)
     path = [endpoint]
 
     # go back from u
+    visited = set()
     curr = endpoint
     prev = None
-    while curr:
-        next_u_lst = None
-        if prev:
-            next_u_lst = graph.get_neighbors(curr).remove(prev)
-        else:
-            next_u_lst = graph.get_neighbors(curr)
-        if next_u_lst:
+    while curr not in visited:
+        next_u_lst = path_graph.get_neighbors(curr)
+        if prev != None:
+            next_u_lst.remove(prev)
+
+        if len(next_u_lst) > 0:
             next_u = next_u_lst[0]
-        else:
-            break
+
         path.append(next_u)
         prev = curr
         curr = next_u
+        visited = visited.union({prev})
 
-    return path
-
-    # for edge in path_graph.get_sorted_edges():
-
+    return path[:-1]
 
 def new_coloring_is_valid(graph, edge_added):
     
@@ -84,8 +83,9 @@ def new_coloring_is_valid(graph, edge_added):
     count = 0
     curr = u
     prev = v
-    while count < COLOR_LIMIT + 1:
-        next_u_lst = graph.get_neighbors(curr).remove(prev)
+    while count < gr.COLOR_LIMIT + 1:
+        next_u_lst = graph.get_neighbors(curr)
+        next_u_lst.remove(prev)
         if next_u_lst:
             next_u = next_u_lst[0]
         else:
@@ -95,12 +95,12 @@ def new_coloring_is_valid(graph, edge_added):
         curr = next_u
         count += 1
 
-    # go forward from v 
     count = 0
     curr = v
     prev = u
-    while count < COLOR_LIMIT + 1:
-        next_v_lst = graph.get_neighbors(curr).remove(prev)
+    while count < gr.COLOR_LIMIT + 1:
+        next_v_lst = graph.get_neighbors(curr)
+        next_v_lst.remove(prev)
         if next_v_lst:
             next_v = next_v_lst[0]
         else:
@@ -111,8 +111,6 @@ def new_coloring_is_valid(graph, edge_added):
         count += 1
 
     return graph.is_valid_coloring(path)
-
-    # first explore on the other side of u
 
 
 def no_forks_found(graph, edge_added):

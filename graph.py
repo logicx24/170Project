@@ -75,7 +75,7 @@ class Graph(object):
           self.all_edges = []
 
           # initialize all edges to -1s
-          self.weights_matrix = [([-1]*n)[:] for _ in range(n)]
+          self.weights_matrix = [([-1]*self.num_nodes)[:] for _ in range(self.num_nodes)]
           for i in range(self.num_nodes):
               self.set_weight(0, i, i)
 
@@ -110,7 +110,7 @@ class Graph(object):
       """
           Creates graph identical to SELF, except with no edges.
       """
-      return Graph(graph.colors)
+      return Graph(colors_list=self.colors)
 
   def get_weight(self, node1, node2):
       weight = self.weights_matrix[node1][node2]
@@ -137,11 +137,12 @@ class Graph(object):
       """
       adjacent_nodes = []
       for possible_neighbor in range(self.num_nodes):
-          if self.get_weight(node, possible_neighbor) and possible_neighbor != node:
+          if self.get_weight(node, possible_neighbor) != None and possible_neighbor != node:
               adjacent_nodes.append(possible_neighbor)
       return adjacent_nodes
 
-  def _get_edge_repr(node1, node2):
+  @classmethod
+  def _get_edge_repr(cls, node1, node2):
       """
           This PRIVATE method takes in two numbers (node indicies) and
           returns a sorted tuple of these numbers.
@@ -179,7 +180,7 @@ class Graph(object):
   def get_color(self, node):
       return self.colors[node]
 
-  def get_sorted_edges(self, node):
+  def get_sorted_edges(self):
       # edge = [Edge() for edge in self.all_edges]
       return sorted(self.all_edges, key=lambda x: self.weights_matrix[x[0]][x[1]])
 
