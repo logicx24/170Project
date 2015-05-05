@@ -56,3 +56,81 @@ def break_greedy(n, random_path=True, shuffle_colors=False):
     random.shuffle(graph.colors)
 
   return graph
+
+def break_kruskal(n=50):
+  colors = (["B", "B", "B", "R", "R", "R"] * int(n/3))[:48] + ["R", "B"]
+  graph = break_triangle_ineq.CoordGraph(n) # all weights are currently -1
+  graph.colors = colors
+
+  intended_path = range(n)
+
+  # red_nodes = []
+  # blue_nodes = []
+  # for i in range(n)[::6]:
+  #   red_nodes += [i, i+1, i+2]
+  #   blue_nodes += [i+3, i+4, i+5]
+  # red_nodes = [i for i in red_nodes if i <= 49]
+  # blue_nodes = [i for i in blue_nodes if i <= 49]
+  # blue_nodes += [49]
+
+  red_nodes = [r for r in intended_path if colors[r]=="R"]
+  blue_nodes = [b for b in intended_path if colors[b]=="B"]
+
+  # for tier in range(n/6)[::3]:
+  #   for r in red_nodes:
+  #     if r+1 <= 49: graph.set_weight(tier, r, r+1)
+  # for tier in range(n/6)[::3]:
+  #   for b in blue_nodes:
+  #     if b+1 <= 49: graph.set_weight(tier+1, b, b+1)
+
+  # weight_counter = 0
+  # for node1 in range(len(red_nodes)):
+  #   for node2 in range(node1+1, len(red_nodes)):
+  #     graph.set_weight(weight_counter, red_nodes[node1], red_nodes[node2])
+  #     weight_counter += 1
+
+  # weight_counter = 0
+  # for node1 in range(len(blue_nodes)):
+  #   for node2 in range(node1+1, len(blue_nodes)):
+  #     graph.set_weight(weight_counter, blue_nodes[node1], blue_nodes[node2])
+  #     weight_counter += 1
+
+  for node1 in range(n):
+    for node2 in range(node1+1, n):
+      graph.set_weight(random.randint(5, 20), node1, node2)
+
+  graph.set_weight(0, 0, 1)
+  graph.set_weight(2, 1, 2)
+  graph.set_weight(3, 2, 3)
+  graph.set_weight(1, 1, 49)
+  for blue_node in blue_nodes:
+    if blue_node != 49 and blue_node != 1:
+      graph.set_weight(100, 49, blue_node)
+
+
+  # fucked_nodes = [n-1 for n in intended_path[::3]]
+  # for node in fucked_nodes:
+  #   this_color = graph.colors[node]
+  #   opp_color = [x for x in intended_path if x > node and graph.colors[x] != this_color]
+  #   for opp in opp_color:
+  #     graph.set_weight(100, node, opp)
+  #   graph.set_weight(99, node, node+1)
+
+  # for node1 in range(n):
+  #   for node2 in range(node1+1, n):
+  #     if graph.get_weight(node1, node2) == -1:
+  #       graph.set_weight(4, node1, node2)
+
+  return graph
+
+
+
+
+
+
+
+
+
+
+
+
