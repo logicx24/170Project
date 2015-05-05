@@ -3,6 +3,27 @@ import time
 
 COLOR_LIMIT = 3
 
+class Edge(object):
+
+	def __init__(self, vertex1, vertex2, weight):
+		self.vertices = (vertex1, vertex2)
+		self.weight = weight
+
+	def __eq__(self, other):
+		return self.weight == other.weight and self.vertices == other.vertices
+
+	def __lt__(self, other):
+		return self.weight < other.weight
+
+	def __le__(self, other):
+		return self.lt(other) or self.weight == other.weight
+
+	def __gt__(self, other):
+		return self.weight > other.weight
+
+	def __le__(self, other):
+		return self.gt(other) or self.weight == other.weight
+
 def timer(func):
   start, end = None, None
   def helper(*args):
@@ -22,29 +43,115 @@ class Graph(object):
 	STUBBORN = 5
 	SMART_BINOCULARS = 6
 
-	def __init__(self, file):
-		lines = [line.strip() for line in file.split("\n") if line != '']
-		last_index = len(lines) - 1
-		self.file = file
-		self.num_nodes = int(lines[0])
-		self.colors = [color for color in lines[last_index]]
-		if "\t" not in lines[3]:
-			self.weights_matrix = [[int(weight) for weight in line.strip().split(" ") if weight != ''] for line in lines[1:last_index]]
+	def __init__(self, file=None, weights_matrix=None, colors_list=None):
+		if file:
+			lines = [line.strip() for line in file.split("\n") if line != '']
+			last_index = len(lines) - 1
+			self.file = file
+			self.num_nodes = int(lines[0])
+			self.colors = [color for color in lines[last_index]]
+			if "\t" not in lines[3]:
+				self.weights_matrix = [[int(weight) for weight in line.strip().split(" ") if weight != ''] for line in lines[1:last_index]]
+			else:
+				self.weights_matrix = [[int(weight) for weight in line.strip().split("\t") if weight != ''] for line in lines[1:last_index]]
+
+			#self.weights_matrix = [[int(weight) for weight in line.split(" ")] for line in lines[1:last_index]]
+
+			self.all_edges = []
+			for i in range(self.num_nodes):
+				for j in range(i+1, self.num_nodes):
+					self.all_edges.append((i,j))
+
+		elif weights_matrix and colors_list: # no file!
+			self.file = None
+			self.num_nodes = len(colors_list)
+			self.weights_matrix = weights_matrix
+			self.colors = colors_list
+			self.all_edges = []
+			for i in range(self.num_nodes):
+				for j in range(i+1, self.num_nodes):
+					self.all_edges.append((i,j))
+
+		elif colors_list:  # no edges!
+
+			self.file = None
+			self.num_nodes = len(colors_list)
+			self.colors = colors_list
+			self.all_edges = []
+
+			# initialize all edges to -1s
+		    self.weights_matrix = [([-1]*n)[:] for _ in range(n)]
+			for i in range(self.num_nodes)
+				self.set_weight(0, i, i)
+
 		else:
-			self.weights_matrix = [[int(weight) for weight in line.strip().split("\t") if weight != ''] for line in lines[1:last_index]]
-		self.all_edges = []
-		for i in range(self.num_nodes):
-			for j in range(i+1, self.num_nodes):
-				self.all_edges.append((i,j))
+			self.file = None
+			self.num_nodes = 0
+			self.weights_matrix = [[]]
+			self.all_edges = []
+			self.colors = []
 
 	# TOOLS FOR GRAPH MANIPULATION
 
 	def set_weight(self, weight, node1, node2):
+		"""
+			This method is for changing the the weight of an already
+			existing edge in the graph. If you want to add a new edge to
+			the graph, use add_edge()
+		"""
 		self.weights_matrix[node1][node2] = weight
 		self.weights_matrix[node2][node1] = weight
 
+	# LOL OMG GUYS GET IT ADDEDGE
+	def add_edge(self, weight, node1, node2):
+		"""
+			This method is for actually adding an edge to the graph; if
+			you just want to set the weight, use the set_weight() method.
+		"""
+		self.set_weight(weight, node1, node2)
+		self.all_edges.append(Graph._get_edge_repr(node1, node2))
+
+	def copy_empty(self):
+		"""
+			Creates graph identical to SELF, except with no edges.
+		"""
+		return Graph(graph.colors)
+
 	def get_weight(self, node1, node2):
-		return self.weights_matrix[node1][node2]
+		weight = self.weights_matrix[node1][node2]
+		if weight == -1:
+			return None
+		else:
+			return weight
+
+	def get_degree(self, node):
+		"""
+			This method returns the degree of a particular node.
+
+			:runtime: This methods runs in O(|V|) time, because the representation
+					  of the edges is an adjacency matrix not an adjacency list.
+		"""
+		return len(self.get_neighbors(node))
+
+	def get_neighbors(self, node):
+		"""
+			This method returns the neighbors of a particular node.
+
+			:runtime: This methods runs in O(|V|) time, because the representation
+					  of the edges is an adjacency matrix not an adjacency list.
+		"""
+		adjacent_nodes = []
+		for possible_neighbor in range(self.num_nodes):
+			if self.get_weight(node, possible_neighbor) and possible_neighbor != node:
+				adjacent_nodes.append(possible_neighbor)
+		return adjacent_nodes
+
+	def _get_edge_repr(node1, node2):
+		"""
+			This PRIVATE method takes in two numbers (node indicies) and
+			returns a sorted tuple of these numbers.
+		"""
+		return tuple(sorted((node1, node2)))
 
 	def get_avg_weight(self):
 		weight_sum = 0.0
@@ -55,8 +162,15 @@ class Graph(object):
 		return weight_sum / num_edges
 
 	def remove_edge(self, node1, node2):
+	"""
+		This method completely removes an edge between node1 and node2
+		from the graph.
+	"""
 		self.weights_matrix[node1][node2] = -1
 		self.weights_matrix[node2][node1] = -1
+
+		# remove the edge from the edge list
+		self.all_edges.remove(Graph._get_edge_repr(node1, node2))
 
 	def has_edge(self, node1, node2):
 		return self.weights_matrix[node1][node2] != -1 and self.weights_matrix[node2][node1] != -1
@@ -70,6 +184,9 @@ class Graph(object):
 	def get_color(self, node):
 		return self.colors[node]
 
+	def get_sorted_edges(self, node):
+		# edge = [Edge() for edge in self.all_edges]
+		return sorted(self.all_edges, key=lambda x: self.weights_matrix[x[0]][x[1]])
 
 	def __repr__(self):
 		return str(self.num_nodes) + "\n" + \
