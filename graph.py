@@ -192,8 +192,8 @@ class Graph(object):
 					new_node = new_edge[1]
 				path = path + [new_node]
 
-			if False and print_path:
-				print path
+			# if False and print_path:
+			# 	print path
 
 		return path
 
@@ -371,6 +371,39 @@ class Graph(object):
 				path = path + [new_node]
 		return path
 
+	def initialize(self, source):
+	    d = {} # Stands for destination
+	    p = {} # Stands for predecessor
+	    for node in range(self.num_nodes):
+	        d[node] = float('Inf') # We start admiting that the rest of nodes are very very far
+	        p[node] = None
+	    d[source] = 0 # For the source we know how to reach
+	    return d, p
+	 
+	def relax(self, node, neighbour, d, p):
+	    # If the distance between the node and the neighbour is lower than the one I have now
+	    if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
+	        # Record this lower distance
+	        d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
+	        p[neighbour] = node
+	 
+	def bellman_ford(self, source):
+	    d, p = self.initialize(source)
+	    for i in range(self.num_nodes-1): #Run this until is converges
+	        for u in range(self.num_nodes):
+	            for v in range(self.num_nodes): #For each neighbour of u
+	                self.relax(u, v, d, p) #Lets relax it
+	 
+	    # Step 3: check for negative-weight cycles
+	    for u in range(self.num_nodes):
+	        for v in range(self.num_nodes):
+	            assert d[v] <= d[u] + self.weights_matrix[u][v]
+	 
+	    return d
+
+
+
+
 
 # other functions
 
@@ -378,7 +411,7 @@ def run_to_convergence(graph):
 	graph2 = graph.reweight()
 	i = 1
 	while not graph2.is_same(graph2.reweight()):
-		print i
+		#print i
 		graph2 = graph2.reweight()
 		i += 1
 	return graph2
