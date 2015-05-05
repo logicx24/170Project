@@ -9,6 +9,7 @@ class Graph(object):
 	SMART = 2
 	BINOCULARS = 3
 	GURU = 4
+	STUBBORN = 5
 
 	def __init__(self, file):
 		lines = [line for line in file.split("\n") if line != '']
@@ -243,19 +244,24 @@ class Graph(object):
 	# the wisest heuristic of them all
 	def guru_heuristic(self, path, edges=None):
 		heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
+		weights = [0.2, 0.5, 2]
 		edges = self.valid_options(path)
 		scores = dict((edge, 0) for edge in edges)
 		prizes = list(map(lambda a: a**3, list(range(0, len(edges)))))
 		# unweighted
 		for graph in [self, self.reweight()]:
-			for heuristic in heuristics:
+			for h_index, heuristic in enumerate(heuristics):
 				heuristic_func = graph.get_heuristic(heuristic)
 				rankings = heuristic_func(path, edges)
 				for index, edge in enumerate(rankings):
-					scores[edge] += prizes[index]
+					scores[edge] += prizes[index] * weights[h_index]
 		best_score = min(scores.values())
 		best_edges = [edge for edge in edges if scores[edge] == best_score]
 		return best_edges
+
+	# dont consult this one
+	def stubborn_heuristic(self, path, edges=None):
+		return "No"
 
 	# TOOLS USED IN HEURISTICS
 
@@ -324,6 +330,8 @@ class Graph(object):
 			heuristic_func = self.binoculars_heuristic
 		elif heuristic is Graph.GURU:
 			heuristic_func = self.guru_heuristic
+		elif heuristic is Graph.STUBBORN:
+			heuristic_func = self.stubborn_heuristic
 
 		return heuristic_func
 

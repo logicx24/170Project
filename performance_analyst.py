@@ -4,8 +4,10 @@
 from graph import Graph
 import matrix
 
-while True:
-  matrix.write(50)
+i = 0
+while i == 0:
+  i += 1
+  #matrix.write(26)
 
   g = Graph(open("4.in").read())
   print "------------------------------------"
