@@ -4,16 +4,16 @@ import numpy as np
 
 
 def kruskals_path(graph):
-	n = graph.num_nodes
-	sorted_edges = graph.get_sorted_edges()
-	path_graph = graph.copy_empty()
+    n = graph.num_nodes
+    sorted_edges = graph.get_sorted_edges()
+    path_graph = graph.copy_empty()
 
     # create the disjoint sets Data Structure
     union_find = CDisjointSets()
     for node in range(n):
         union_find.MakeSet(node)
 
-	for edge in sorted_edges:
+    for edge in sorted_edges:
         
         u, v = edge
 
@@ -123,7 +123,7 @@ def no_forks_found(graph, edge_added):
 
 """ Disjoint Sets
     -------------
-    Pablo Francisco Pérez Hidalgo
+    Pablo Francisco Perez Hidalgo
     December,2012. 
 """ 
 class CDisjointSets:
