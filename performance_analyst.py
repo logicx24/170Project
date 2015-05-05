@@ -6,6 +6,7 @@ import matrix
 
 while True:
   matrix.write(50)
+
   g = Graph(open("4.in").read())
   print "------------------------------------"
   mappings = {}
