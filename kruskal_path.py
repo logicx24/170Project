@@ -4,6 +4,23 @@ import numpy as np
 
 
 def kruskalsSolver(graph):
+
+    best_path = None
+    best_cost = float("inf")
+
+    for i in range(gr.COLOR_LIMIT):
+        subtr = i
+        path, cost = kruskalsSolverHelper(graph, subtr)
+
+        if graph.is_valid_hamiltonian(path):
+            if cost < best_cost:
+                best_path = path
+                best_cost = cost
+
+    return best_path, best_cost
+    # return None
+
+def kruskalsSolverHelper(graph, subtr):
     n = graph.num_nodes
     sorted_edges = graph.get_sorted_edges()
     path_graph = graph.copy_empty()
@@ -38,7 +55,7 @@ def kruskalsSolver(graph):
             path_graph.remove_edge(u, v)
             continue
 
-        if not check_remaining_color_ratio(path_graph):
+        if not check_remaining_color_ratio(path_graph, subtr):
             path_graph.remove_edge(u, v)
             continue
 
@@ -54,16 +71,19 @@ def kruskalsSolver(graph):
             break
 
     path = [endpoint]
-    print "COUNT: ", count
-    print "EDGES: ", path_graph.all_edges
-    print "EDGES LEN: ", len(path_graph.all_edges)
+
+    new_path_graph = graph.copy_empty()
+    for edge in path_graph.all_edges:
+        u, v = edge
+        weight = graph.get_weight(u, v)
+        new_path_graph.add_edge(weight, u, v)
 
     # go back from u
     visited = set()
     curr = endpoint
     prev = None
     while curr not in visited:
-        next_u_lst = path_graph.get_neighbors(curr)
+        next_u_lst = new_path_graph.get_neighbors(curr)
         if prev != None:
             next_u_lst.remove(prev)
 
@@ -75,7 +95,9 @@ def kruskalsSolver(graph):
         curr = next_u
         visited = visited.union({prev})
 
-    return path[:-1], path_graph.path_cost(path[:-1])
+
+    # if graph.is_valid_hamiltonian()
+    return path[:-1], new_path_graph.path_cost(path[:-1])
 
 def new_coloring_is_valid(graph, edge_added):
     
@@ -118,24 +140,52 @@ def new_coloring_is_valid(graph, edge_added):
         curr = next_v
         count += 1
 
-    print "PATH: ", path, " ", ''.join(str(x) for x in [graph.colors[city] for city in path]), " STATUS: ", graph.is_valid_coloring(path)
     return graph.is_valid_coloring(path)
 
 
 def no_forks_found(graph, edge_added):
     return graph.get_degree(edge_added[0]) <= 2 and graph.get_degree(edge_added[1]) <= 2 
 
-def check_remaining_color_ratio(graph):
+def same_color_neighbors_path_from_end_node(graph, end_node):
+
+    color = graph.get_color(end_node)
+
+    count = 0
+    prev = None
+    curr = end_node
+    while True:
+        next_neighbors = graph.get_neighbors(curr)
+        if prev != None:
+            next_neighbors.remove(prev)
+        if len(next_neighbors) != 0:
+            next_neigh = next_neighbors[0]
+        else:
+            break
+
+        if graph.get_color(next_neigh) == color:
+            count += 1
+        else:
+            return count
+
+        prev = curr
+        curr = next_neigh
+
+
+def check_remaining_color_ratio(graph, subtr):
     reds, blues, total = 0, 0, 0
     for node in range(graph.num_nodes):
-        if graph.get_degree(node) == 0:
+        degree = graph.get_degree(node)
+        if degree == 0 or (degree == 1 and same_color_neighbors_path_from_end_node(graph, node) == gr.COLOR_LIMIT):
             total += 1
             if graph.is_red(node):
                 reds += 1
             else:
                 blues += 1
 
-    return total < 3 or (reds * gr.COLOR_LIMIT >= blues and blues * gr.COLOR_LIMIT >= reds)
+    if subtr == gr.COLOR_LIMIT - 1:
+        return total <= gr.COLOR_LIMIT or abs(reds - blues) <= 1
+    else:
+        return total <= gr.COLOR_LIMIT or (reds * (gr.COLOR_LIMIT - subtr) >= blues and blues * (gr.COLOR_LIMIT - subtr) >= reds)
 
 
 """ Disjoint Sets
