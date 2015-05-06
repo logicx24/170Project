@@ -3,7 +3,7 @@ import random
 import numpy as np 
 
 
-def kruskals_path(graph):
+def kruskalsSolver(graph):
     n = graph.num_nodes
     sorted_edges = graph.get_sorted_edges()
     path_graph = graph.copy_empty()
@@ -67,7 +67,7 @@ def kruskals_path(graph):
         curr = next_u
         visited = visited.union({prev})
 
-    return path[:-1]
+    return path[:-1], path_graph.path_cost(path[:-1])
 
 def new_coloring_is_valid(graph, edge_added):
     

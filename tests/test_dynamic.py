@@ -23,22 +23,21 @@ class TestDynamicSolver(unittest.TestCase):
         self._check(actual_path, expected_path)
         self._check(actual_dist, expected_dist)
 
-    def test_ten_nodes1_valid_colors(self):
+    def test_ten_nodes1_valid_hamiltonian(self):
 
         graph = Graph(open(TEST_PATH + 'ten_nodes1.in').read())
         actual_path, actual_dist = dynamicSolver(graph)
 
         self._check(graph.is_valid_hamiltonian(actual_path), True)
 
-    def test_ten_nodes2_valid_colors(self):
+    def test_ten_nodes2_valid_hamiltonian(self):
 
         graph = Graph(open(TEST_PATH + 'ten_nodes2.in').read())
         actual_path, actual_dist = dynamicSolver(graph)
 
         self._check(graph.is_valid_hamiltonian(actual_path), True)
 
-
-    def test_twelve_nodes1_valid_colors(self):
+    def test_twelve_nodes1_valid_hamiltonian(self):
 
         graph = Graph(open(TEST_PATH + 'twelve_nodes1.in').read())
         actual_path, actual_dist = dynamicSolver(graph)
