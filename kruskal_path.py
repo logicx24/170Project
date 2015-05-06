@@ -38,9 +38,9 @@ def kruskalsSolver(graph):
             path_graph.remove_edge(u, v)
             continue
 
-        # if not check_remaining_color_ratio(path_graph):
-        #     path_graph.remove_edge(u, v)
-        #     continue
+        if not check_remaining_color_ratio(path_graph):
+            path_graph.remove_edge(u, v)
+            continue
 
         count += 1
         # No cycles. Guaranteed a path. And colors work. Now we add the edge.
@@ -126,15 +126,16 @@ def no_forks_found(graph, edge_added):
     return graph.get_degree(edge_added[0]) <= 2 and graph.get_degree(edge_added[1]) <= 2 
 
 def check_remaining_color_ratio(graph):
-    reds, blues = 0, 0
+    reds, blues, total = 0, 0, 0
     for node in range(graph.num_nodes):
         if graph.get_degree(node) == 0:
+            total += 1
             if graph.is_red(node):
                 reds += 1
             else:
                 blues += 1
 
-    return reds * gr.COLOR_LIMIT >= blues and blues * gr.COLOR_LIMIT >= reds
+    return total < 3 or (reds * gr.COLOR_LIMIT >= blues and blues * gr.COLOR_LIMIT >= reds)
 
 
 """ Disjoint Sets
