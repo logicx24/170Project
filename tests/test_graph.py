@@ -1,9 +1,11 @@
 import unittest
 import numpy as np
 from graph import Graph
+from dynamic_programming import dynamicSolver
 import os
 
 TEST_PATH = os.path.dirname(os.path.abspath(__file__)) + '/test_inputs/'
+
 
 class TestGraph(unittest.TestCase):
 
@@ -11,16 +13,13 @@ class TestGraph(unittest.TestCase):
         np.testing.assert_allclose(actual, expected)
 
     def test_red_and_blue(self):
+        # graph = Graph(open(TEST_PATH + 'four_nodes.in').read())
+
         graph = Graph(open(TEST_PATH + 'four_nodes.in').read())
-        
-        self._check(graph.is_blue(0), True)
-        self._check(graph.is_red(0), False)
+        actual_path, actual_dist = dynamicSolver(graph)
 
-        self._check(graph.is_blue(1), True)
-        self._check(graph.is_red(1), False)
+        expected_path = [2, 3, 1, 0]
+        expected_dist = 102.0
 
-        self._check(graph.is_blue(2), False)
-        self._check(graph.is_red(2), True)
-
-        self._check(graph.is_blue(3), False)
-        self._check(graph.is_red(3), True)
+        self._check(actual_path, expected_path)
+        self._check(actual_dist, expected_dist)

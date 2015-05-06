@@ -1,6 +1,6 @@
 from graph import Graph
 
-OUTPUT_FILE = "answers.txt"
+OUTPUT_FILE = "answer.out"
 
 answers = []
 for i in range(406,496):

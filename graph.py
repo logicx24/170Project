@@ -518,6 +518,8 @@ class Graph(object):
                 path = path + [new_node]
         return path
 
+    #Shortest path for clustering
+
     def initialize(self, source):
         d = {} # Stands for destination
         p = {} # Stands for predecessor
