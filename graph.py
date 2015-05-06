@@ -214,9 +214,9 @@ class Graph(object):
               return False
       return True
 
-  def is_valid_hamiltonian(self, path, length=None):
+  def is_valid_hamiltonian(self, path):
       """ Self explanatory """
-      length = length or len(list(set(path)))
+      length = len(list(set(path)))
       return length == self.num_nodes and length == len(path) and self.is_valid_coloring(path)
 
   def is_valid_hamiltonian_and_seq(self, path):
