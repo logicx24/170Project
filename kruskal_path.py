@@ -13,6 +13,7 @@ def kruskalsSolver(graph):
     for node in range(n):
         union_find.MakeSet(node)
 
+    count = 0
     for edge in sorted_edges:
         
         u, v = edge
@@ -20,7 +21,6 @@ def kruskalsSolver(graph):
         # add in the edge
         weight = graph.get_weight(u, v)
         path_graph.add_edge(weight, u, v)
-
 
         # if we're about to create a cycle, we don't add the edge
         if union_find.FindLabel(u) == union_find.FindLabel(v):
@@ -38,6 +38,11 @@ def kruskalsSolver(graph):
             path_graph.remove_edge(u, v)
             continue
 
+        # if not check_remaining_color_ratio(path_graph):
+        #     path_graph.remove_edge(u, v)
+        #     continue
+
+        count += 1
         # No cycles. Guaranteed a path. And colors work. Now we add the edge.
         union_find.Join(u, v)
 
@@ -49,6 +54,9 @@ def kruskalsSolver(graph):
             break
 
     path = [endpoint]
+    print "COUNT: ", count
+    print "EDGES: ", path_graph.all_edges
+    print "EDGES LEN: ", len(path_graph.all_edges)
 
     # go back from u
     visited = set()
@@ -73,8 +81,8 @@ def new_coloring_is_valid(graph, edge_added):
     
     u, v = edge_added
     # # if the edge you added has nodes of differing colors, you're good.
-    # if graph.get_color(u) != graph.get_color(v):
-    #     return True
+    if graph.get_color(u) != graph.get_color(v):
+        return True
     
     # color = graph.get_color(u)
     path = [u, v]
@@ -86,11 +94,11 @@ def new_coloring_is_valid(graph, edge_added):
     while count < gr.COLOR_LIMIT + 1:
         next_u_lst = graph.get_neighbors(curr)
         next_u_lst.remove(prev)
-        if next_u_lst:
+        if len(next_u_lst) != 0:
             next_u = next_u_lst[0]
         else:
             break
-        path.insert(next_u, 0)
+        path.insert(0, next_u)
         prev = curr
         curr = next_u
         count += 1
@@ -101,7 +109,7 @@ def new_coloring_is_valid(graph, edge_added):
     while count < gr.COLOR_LIMIT + 1:
         next_v_lst = graph.get_neighbors(curr)
         next_v_lst.remove(prev)
-        if next_v_lst:
+        if len(next_v_lst) != 0:
             next_v = next_v_lst[0]
         else:
             break
@@ -110,13 +118,23 @@ def new_coloring_is_valid(graph, edge_added):
         curr = next_v
         count += 1
 
+    print "PATH: ", path, " ", ''.join(str(x) for x in [graph.colors[city] for city in path]), " STATUS: ", graph.is_valid_coloring(path)
     return graph.is_valid_coloring(path)
 
 
 def no_forks_found(graph, edge_added):
     return graph.get_degree(edge_added[0]) <= 2 and graph.get_degree(edge_added[1]) <= 2 
 
+def check_remaining_color_ratio(graph):
+    reds, blues = 0, 0
+    for node in range(graph.num_nodes):
+        if graph.get_degree(node) == 0:
+            if graph.is_red(node):
+                reds += 1
+            else:
+                blues += 1
 
+    return reds * gr.COLOR_LIMIT >= blues and blues * gr.COLOR_LIMIT >= reds
 
 
 """ Disjoint Sets
