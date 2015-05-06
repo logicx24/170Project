@@ -50,7 +50,10 @@ class Graph(object):
           self.file = file
           self.num_nodes = int(lines[0])
           self.colors = [color for color in lines[last_index]]
-          self.weights_matrix = [[int(weight) for weight in line.split()] for line in lines[1:last_index]]
+          if "\t" in lines[3]:
+            self.weights_matrix = [[int(weight) for weight in line.trim().split("\t")] for line in lines[1:last_index]]
+          else:
+            self.weights_matrix = [[int(weight) for weight in line.trim().split()] for line in lines[1:last_index]]
 
           self.all_edges = []
           for i in range(self.num_nodes):
