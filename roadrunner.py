@@ -10,7 +10,7 @@ for i in range(406,496):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}
-    heuristics = [Graph.BASIC, Graph.SMART]
+    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
     for graph in [g, g.reweight()]:
         for heuristic in heuristics:
             try:
@@ -27,6 +27,8 @@ for i in range(406,496):
                     mapping[tuple(path)] += ["Basic"]
                 elif heuristic == Graph.SMART:
                     mapping[tuple(path)] += ["Smart"]
+                elif heuristic == Graph.BINOCULARS:
+                    mapping[tuple(path)] += ["Binoculars"]
 
             except IndexError as e:
                 print "\t\tERROR in {0}".format(heuristic)

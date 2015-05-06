@@ -214,9 +214,10 @@ class Graph(object):
               return False
       return True
 
-  def is_valid_hamiltonian(self, path):
+  def is_valid_hamiltonian(self, path, length=None):
       """ Self explanatory """
-      return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path) and self.is_valid_coloring(path)
+      length = length or len(list(set(path)))
+      return length == self.num_nodes and length == len(path) and self.is_valid_coloring(path)
 
   def is_valid_hamiltonian_and_seq(self, path):
       return len(list(set(path))) == self.num_nodes and len(list(set(path))) == len(path)# and self.is_valid_sequence(path)
@@ -230,14 +231,17 @@ class Graph(object):
       weights.insert(0, 0) # the first node on the path doesn't have an edge going into it
       return [str(node)+str(color)+":"+str(weight) for node, color, weight in zip(path, path_colors, weights)]
 
-  def creates_cycle(self, edge, path):
+  def creates_cycle(self, edge, path, length=None):
       """ Checks to see if adding a given EDGE creates a cycle given a PATH """
-      if len(path) < 2:
+      length = length or len(path)
+      if length < 2:
           return False
       return edge[0] in path and edge[1] in path
 
-  def is_last_color(self, path, edge):
-      new_path = self.append_edge(path, edge)
+  # this is really bad. it does this count for each thing each time.
+  # instead, compute the valid next colors for a path, and make sure the edge has them
+  def is_last_color(self, path):
+      new_path = path # self.append_edge(path, edge)
       num_blues = sum([1 for node in new_path if self.is_blue(node)])
       num_reds = sum([1 for node in new_path if self.is_red(node)])
       num_blues_left = self.num_nodes / 2 - num_blues
@@ -253,7 +257,7 @@ class Graph(object):
 
       return (num_blues_left - 3) / num_reds_left > 3
 
-  def valid_options(self, path):
+  def valid_options(self, path, remaining_edges):
       """ Given a path, the list of edges that extend from the endpoints of the graph
       and do not create cycles AND do not violate the max-3-node constraint."""
       #next_valid_colors = ["R", "B"]
@@ -262,30 +266,38 @@ class Graph(object):
       #   if last_three_node_colors[0] == last_three_node_colors[1] == last_three_node_colors[2]:
       #       next_valid_colors.remove(last_three_node_colors[0])
 
-      return [edge for edge in self.all_edges if not self.creates_cycle(edge, path) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(path, edge)] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
+      length = len(path)
+      # valid_edges = []
+      options = remaining_edges or self.all_edges
+      # instead of doing this, do REMAINING edges. if an edge is used, remove it from REMAINING EDGES
+      # for edge in options:
+      #   new_path = self.append_edge(path, edge)
+      #   if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(new_path) and not self.is_last_color(new_path):
+      #     valid_edges.append(edge)
+      # return valid_edges
+
+      return [edge for edge in options if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
 
   # LOOOOOL OMG GET IT?????????????
   # YES SAHIL WE GET IT
   # NO I DONT THINK YOU DO. ITS FUCKING APPENDAGE. APPENDAGE. APPEEEENDDDAGGEE.
   def append_edge(self, path, edge):
-      path = path[:]
       new_edge = (edge[0], edge[1])
       left_endpoint, right_endpoint = path[0], path[-1]
       new_node = new_edge[0]
       if left_endpoint in new_edge:
           if left_endpoint == new_edge[0]:
               new_node = new_edge[1]
-          path = [new_node] + path
+          return [new_node] + path
       else:
           if right_endpoint == new_edge[0]:
               new_node = new_edge[1]
-          path = path + [new_node]
-      return path
+          return path + [new_node]
 
   # APPROXIMATION ALGORITHMS
 
   # todo: allow the selection of the first edge to be different or to even be iterative
-  def greedy(self, heuristic=BASIC, path=None):
+  def greedy(self, heuristic=BASIC, path=None, printer=False):
       """ The implementation of the greedy solution without any special stuff """
 
       # set the default heurisitic if none are provided
@@ -307,11 +319,15 @@ class Graph(object):
           path = list(min(self.all_edges, key=lambda edge: self.get_weight(edge[0], edge[1])))
           print_path = True
 
+      remaining_edges = self.all_edges[:]
+
       while not self.is_valid_hamiltonian(path):
           left_endpoint, right_endpoint = path[0], path[-1]
 
           # using the passed in heuristic, pass in the path up to that point
-          new_edge = heuristic_func(path)[0]
+          new_edge = heuristic_func(path, remaining_edges=remaining_edges)
+
+          remaining_edges.remove(new_edge)
 
           # add the new edge to the proper side of the path
           new_node = new_edge[0]
@@ -324,7 +340,7 @@ class Graph(object):
                   new_node = new_edge[1]
               path = path + [new_node]
 
-          if False and print_path:
+          if printer and print_path:
               print path
 
       return path
@@ -341,19 +357,19 @@ class Graph(object):
 
   # HEURISTICS FOR GREEDY ALGORITHMS
 
-  def general_heuristic(self, path, edges=None):
-      edges = edges or self.valid_options(path)
-      return sorted(edges, key=lambda edge: self.get_weight(edge[0], edge[1]))
+  def general_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
+      edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
+      return ranking_method(edges, key=lambda edge: self.get_weight(edge[0], edge[1]))
 
   # more like slightly educated heuristic. like barely high school graduate who enlisted in the marines
   # and served 4 years, left with a honorable discharge, became a carpenter in a quiet suburban neighborhood
   # in the midwest, lived a simple, happy life.
-  def smart_heuristic(self, path, edges=None):
+  def smart_heuristic(self, path, remaining_edges, edges=None):
       # left_endpoint, right_endpoint = path[0], path[-1]
       # weighter = lambda edge: self.get_weight(edge[0], edge[1])
       # left_weighter = lambda edge: self.f(edge, edge[0] if edge[1] == left_endpoint else edge[1])
       # right_weighter = lambda edge: self.f(edge, edge[0] if edge[1] == right_endpoint else edge[1])
-      edges = edges or self.valid_options(path)
+      edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
       # left_edges = [edge for edge in edges if left_endpoint in edge]
       # right_edges = [edge for edge in edges if right_endpoint in edge]
       # if left_edges and right_edges:
@@ -365,32 +381,38 @@ class Graph(object):
 
       return sorted(edges, key=lambda edge: self.f_smart(edge, path))
 
-  def binoculars_heuristic(self, path, edges=None):
-      edges = edges or self.valid_options(path)
+  def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
+      edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
       paths = [self.append_edge(path, edge) for edge in edges]
-      best_paths = sorted(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
-      # return edges[paths.index(best_path)]
-      return [edges[paths.index(best_path)] for best_path in best_paths]
+      best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
 
-  def smart_binoculars_heuristic(self, path, edges=None):
-    edges = edges or self.valid_options(path)
+      # return edges[paths.index(best_path)]
+
+      if ranking_method == sorted:
+        best_edges = [edges[paths.index(best_path)] for best_path in best_paths]
+        return best_edges
+
+      return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
+
+  def smart_binoculars_heuristic(self, path, remaining_edges, edges=None):
+    edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
     paths = [self.append_edge(path, edge) for edge in edges]
     best_paths = sorted(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
     # return edges[paths.index(best_path)]
     return [edges[paths.index(best_path)] for best_path in best_paths]
 
   # the wisest heuristic of them all
-  def guru_heuristic(self, path, edges=None, weights=None):
+  def guru_heuristic(self, path, remaining_edges, edges=None, weights=None):
       heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
       weights = weights or [0.5, 0.2, 2]
-      edges = edges or self.valid_options(path)
+      edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
       scores = dict((edge, 0) for edge in edges)
       prizes = list(map(lambda a: a**3, list(range(0, len(edges)))))[::-1]
       # unweighted
       for graph in [self, self.reweight()]:
           for h_index, heuristic in enumerate(heuristics):
               heuristic_func = graph.get_heuristic(heuristic)
-              rankings = heuristic_func(path, edges)
+              rankings = heuristic_func(path, edges=edges, ranking_method=sorted)
               for index, edge in enumerate(rankings):
                   scores[edge] += prizes[index] * weights[h_index]
       best_score = max(scores.values())
@@ -398,7 +420,7 @@ class Graph(object):
       return best_edges
 
   # dont consult this one
-  def stubborn_heuristic(self, path, edges=None):
+  def stubborn_heuristic(self, path, remaining_edges, edges=None):
       return "No"
 
   # TOOLS USED IN HEURISTICS
