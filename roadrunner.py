@@ -1,12 +1,24 @@
+#!/usr/bin/python
+
+import sys
+
 from graph import Graph
 from kruskal_path import kruskalsSolver
 from dynamic_programming import dynamicSolver
 
-OUTPUT_FILE = "answer1to125.out"
 DYNAMIC_THRESHOLD = 12
 
 answers = []
-for i in range(6,125):
+
+# command line arguments: first number is start, second number is end (inclusive)
+try:
+  start, end = int(sys.argv[1]), int(sys.argv[2])
+except Exception as e:
+  start, end = 376, 495 # TODO change these according to your file assignments!
+
+OUTPUT_FILE = "answer" + str(start) + "to" + str(end) + ".out"
+
+for i in range(start, end+1):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}
@@ -68,6 +80,7 @@ for i in range(6,125):
 
             mapping[g.path_cost(tuple(dynamic_path))] += ["Dynamic"]
 
+    # Null heuristic
     results.append(list(range(g.num_nodes)))
 
     if g.path_cost(tuple(list(range(g.num_nodes)))) not in mapping:
