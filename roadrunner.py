@@ -6,6 +6,7 @@ from graph import Graph
 from kruskal_path import kruskalsSolver
 from dynamic_programming import dynamicSolver
 
+
 DYNAMIC_THRESHOLD = 12
 
 answers = []
