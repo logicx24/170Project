@@ -42,7 +42,7 @@ for i in range(start, end+1):
                     mapping[g.path_cost(tuple(path))] += ["Smart"]
                 elif heuristic == Graph.BINOCULARS:
                     mapping[g.path_cost(tuple(path))] += ["Binoculars"]
-            except IndexError as e:
+            except ValueError as e:
                 print "\t\tERROR in {0}".format(heuristic)
                 continue
     #
