@@ -2,7 +2,7 @@ from graph import Graph
 from kruskal_path import kruskalsSolver
 import numpy as np
 
-g = Graph(open("instances/446.in").read())
+g = Graph(open("instances/357.in").read())
 # print g
 
 path, cost = kruskalsSolver(g)
