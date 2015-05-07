@@ -31,7 +31,7 @@ for i in range(start, end+1):
     for index, graph in enumerate([g, g.reweight()]):
         for heuristic in heuristics:
             try:
-                print should_parallelize
+                #print should_parallelize
                 path = graph.greedy(heuristic, should_parallelize=should_parallelize)
                 # path = graph.greedy(heuristic, printer=True) # use this instead if you want to see how each heuristic is building up its path
                 if path is not None:

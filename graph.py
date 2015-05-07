@@ -402,7 +402,7 @@ class Graph(object):
         nprocs = multiprocessing.cpu_count();
         procs = []
         #best_paths = ranking_method()
-        print "Running parallel"
+        #print "Running parallel"
         #worker = lambda path: self.path_cost(self.greedy(Graph.BASIC, path))
         def worker(paths, q):
           #print(paths)
