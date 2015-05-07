@@ -51,10 +51,10 @@ for i in range(start, end+1):
                       mapping[g.path_cost(tuple(path))] += ["Basic" + t]
                       print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Basic" + t)
                   elif heuristic == Graph.SMART:
-                      mapping[g.path_cost(tuple(path))] += ["Smart"]
+                      mapping[g.path_cost(tuple(path))] += ["Smart" + t]
                       print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Smart" + t)
                   elif heuristic == Graph.BINOCULARS:
-                      mapping[g.path_cost(tuple(path))] += ["Binoculars"]
+                      mapping[g.path_cost(tuple(path))] += ["Binoculars" + t]
                       print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Binoculars" + t)
 
                 else:
