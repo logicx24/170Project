@@ -411,7 +411,7 @@ class Graph(object):
       res = {}
       for i in range(nprocs):
         lst = output.get()
-        for dicter in lst: 
+        for dicter in lst:
           res.update(dicter)
 
       for proc in procs:
@@ -584,7 +584,6 @@ class Graph(object):
               path = path + [new_node]
       return path
 
-<<<<<<< HEAD
         #Shortest path for clustering
 
     # def initialize(self, source):
@@ -593,46 +592,21 @@ class Graph(object):
     #     for node in range(self.num_nodes):
     #         d[node] = float('Inf')
     #         p[node] = None
-    #     d[source] = 0 
+    #     d[source] = 0
     #     return d, p
-   
+
     # def relax(self, node, neighbour, d, p):
     #     if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
     #         d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
     #         p[neighbour] = node
-   
+
     # def bellman_ford(self, source):
     #     d, p = self.initialize(source)
-    #     for i in range(self.num_nodes-1): 
+    #     for i in range(self.num_nodes-1):
     #         for u in range(self.num_nodes):
-    #             for v in range(self.num_nodes): 
-    #                 self.relax(u, v, d, p) 
+    #             for v in range(self.num_nodes):
+    #                 self.relax(u, v, d, p)
     #     return d
-=======
-      #Shortest path for clustering
-
-  def initialize(self, source):
-      d = {} # Stands for destination
-      p = {} # Stands for predecessor
-      for node in range(self.num_nodes):
-          d[node] = float('Inf')
-          p[node] = None
-      d[source] = 0
-      return d, p
-
-  def relax(self, node, neighbour, d, p):
-      if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
-          d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
-          p[neighbour] = node
-
-  def bellman_ford(self, source):
-      d, p = self.initialize(source)
-      for i in range(self.num_nodes-1):
-          for u in range(self.num_nodes):
-              for v in range(self.num_nodes):
-                  self.relax(u, v, d, p)
-      return d
->>>>>>> 90d7346232cdb8e26f935845b38f95a034699868
 
 # other functions
 
