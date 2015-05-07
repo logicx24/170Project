@@ -18,8 +18,10 @@ except Exception as e:
   start, end = 376, 495 # TODO change these according to your file assignments!
 
 try:
-    should_parallelize = sys.argv[3] == "--parallel"
+    should_parallelize = "--parallel" in sys.argv
+    print "Running in Parallel"
 except IndexError:
+    print "Not Running in Parallel"
     should_parallelize = False
 
 OUTPUT_FILE = "answer" + str(start) + "to" + str(end) + ".out"
@@ -31,6 +33,7 @@ for i in range(start, end+1):
     for index, graph in enumerate([g, g.reweight()]):
         for heuristic in heuristics:
             try:
+                #print should_parallelize
                 path = graph.greedy(heuristic, should_parallelize=should_parallelize)
                 # path = graph.greedy(heuristic, printer=True) # use this instead if you want to see how each heuristic is building up its path
                 if path is not None:
