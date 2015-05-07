@@ -396,14 +396,13 @@ class Graph(object):
   def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min, should_parallelize=False):
       if should_parallelize:
         import multiprocessing
-
         edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
         paths = [self.append_edge(path, edge) for edge in edges]
         output = multiprocessing.Queue();
         nprocs = multiprocessing.cpu_count();
         procs = []
         #best_paths = ranking_method()
-
+        print "Running parallel"
         #worker = lambda path: self.path_cost(self.greedy(Graph.BASIC, path))
         def worker(paths, q):
           #print(paths)
