@@ -24,7 +24,7 @@ for i in range(start, end+1):
     results = []
     mapping = {}
     heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
-    for graph in [g, g.reweight()]:
+    for index, graph in enumerate([g, g.reweight()]):
         for heuristic in heuristics:
             try:
                 path = graph.greedy(heuristic)
@@ -38,15 +38,17 @@ for i in range(start, end+1):
                   except KeyError:
                       mapping[g.path_cost(tuple(path))] = []
 
+                  t = " Reweighted" if index == 1 else ""
+
                   if heuristic == Graph.BASIC:
-                      mapping[g.path_cost(tuple(path))] += ["Basic"]
-                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Basic")
+                      mapping[g.path_cost(tuple(path))] += ["Basic" + t]
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Basic" + t)
                   elif heuristic == Graph.SMART:
                       mapping[g.path_cost(tuple(path))] += ["Smart"]
-                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Smart")
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Smart" + t)
                   elif heuristic == Graph.BINOCULARS:
                       mapping[g.path_cost(tuple(path))] += ["Binoculars"]
-                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Binoculars")
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Binoculars" + t)
 
                 else:
                   print "{0} found no valid path".format(heuristic)
