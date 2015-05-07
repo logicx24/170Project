@@ -19,7 +19,9 @@ except Exception as e:
 
 try:
     should_parallelize = "--parallel" in sys.argv
+    print "Running in Parallel"
 except IndexError:
+    print "Not Running in Parallel"
     should_parallelize = False
 
 OUTPUT_FILE = "answer" + str(start) + "to" + str(end) + ".out"
