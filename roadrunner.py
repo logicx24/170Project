@@ -3,7 +3,7 @@ from kruskal_path import kruskalsSolver
 from dynamic_programming import dynamicSolver
 
 OUTPUT_FILE = "answer1to125.out"
-DYNAMIC_THRESHOLD = 10
+DYNAMIC_THRESHOLD = 12
 
 answers = []
 for i in range(6,125):
