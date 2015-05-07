@@ -6,11 +6,11 @@ OUTPUT_FILE = "answer1to125.out"
 DYNAMIC_THRESHOLD = 10
 
 answers = []
-for i in range(1,125):
+for i in range(6,125):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}
-    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS, Graph.SMART_BINOCULARS]
+    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
     for graph in [g, g.reweight()]:
         for heuristic in heuristics:
             try:
@@ -30,8 +30,6 @@ for i in range(1,125):
                     mapping[tuple(path)] += ["Smart"]
                 elif heuristic == Graph.BINOCULARS:
                     mapping[tuple(path)] += ["Binoculars"]
-                elif heuristic == Graph.SMART_BINOCULARS:
-                    mapping[tuple(path)] += ["Smart Binoculars"]
 
             except IndexError as e:
                 print "\t\tERROR in {0}".format(heuristic)
@@ -68,6 +66,12 @@ for i in range(1,125):
                 mapping[tuple(dynamic_path)] = []
 
             mapping[tuple(dynamic_path)] += ["Dynamic"]
+
+    results.append(list(range(g.num_nodes)))
+
+    if tuple(list(range(g.num_nodes))) not in mapping:
+      mapping[tuple(list(range(g.num_nodes)))] = []
+    mapping[tuple(list(range(g.num_nodes)))] += ["Null"]
 
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
