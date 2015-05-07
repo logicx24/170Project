@@ -270,16 +270,15 @@ class Graph(object):
       #       next_valid_colors.remove(last_three_node_colors[0])
 
       length = len(path)
-      # valid_edges = []
+      valid_edges = []
       options = remaining_edges or self.all_edges
-      # instead of doing this, do REMAINING edges. if an edge is used, remove it from REMAINING EDGES
-      # for edge in options:
-      #   new_path = self.append_edge(path, edge)
-      #   if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(new_path) and not self.is_last_color(new_path):
-      #     valid_edges.append(edge)
-      # return valid_edges
+      # someone parallelize this. like it'll be a crazy speed boost for realz
+      for edge in options:
+        if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(self.append_edge(path, edge)):
+          valid_edges.append(edge)
+      return valid_edges
 
-      return [edge for edge in options if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
+      # return [edge for edge in options if not self.creates_cycle(edge, path, length) and (path[0] in edge or path[-1] in edge) and self.is_valid_coloring(self.append_edge(path, edge)) and not self.is_last_color(self.append_edge(path, edge))] #(self.colors[path[0]] in next_valid_colors or self.colors[path[-1]] in next_valid_colors)]
 
   # LOOOOOL OMG GET IT?????????????
   # YES SAHIL WE GET IT
@@ -433,7 +432,7 @@ class Graph(object):
     paths = [self.append_edge(path, edge) for edge in edges]
     best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
     # return edges[paths.index(best_path)]
-    
+
     if ranking_method == sorted:
       return [edges[paths.index(best_path)] for best_path in best_paths]
 
@@ -455,14 +454,14 @@ class Graph(object):
                   scores[edge] += prizes[index] * weights[h_index]
       best_score = max(scores.values())
       best_edges = [edge for edge in edges if scores[edge] == best_score]
-      
+
       if ranking_method == sorted:
         return best_edges
 
       return best_edges[0]
 
   # dont consult this one
-  def stubborn_heuristic(self, path, remaining_edges, edges=None):
+  def stubborn_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       return "No"
 
   # TOOLS USED IN HEURISTICS
@@ -585,6 +584,7 @@ class Graph(object):
               path = path + [new_node]
       return path
 
+<<<<<<< HEAD
         #Shortest path for clustering
 
     # def initialize(self, source):
@@ -608,6 +608,31 @@ class Graph(object):
     #             for v in range(self.num_nodes): 
     #                 self.relax(u, v, d, p) 
     #     return d
+=======
+      #Shortest path for clustering
+
+  def initialize(self, source):
+      d = {} # Stands for destination
+      p = {} # Stands for predecessor
+      for node in range(self.num_nodes):
+          d[node] = float('Inf')
+          p[node] = None
+      d[source] = 0
+      return d, p
+
+  def relax(self, node, neighbour, d, p):
+      if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
+          d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
+          p[neighbour] = node
+
+  def bellman_ford(self, source):
+      d, p = self.initialize(source)
+      for i in range(self.num_nodes-1):
+          for u in range(self.num_nodes):
+              for v in range(self.num_nodes):
+                  self.relax(u, v, d, p)
+      return d
+>>>>>>> 90d7346232cdb8e26f935845b38f95a034699868
 
 # other functions
 
