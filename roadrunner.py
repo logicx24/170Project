@@ -81,11 +81,12 @@ for i in range(start, end+1):
             mapping[g.path_cost(tuple(dynamic_path))] += ["Dynamic"]
 
     # Null heuristic
-    results.append(list(range(g.num_nodes)))
-
-    if g.path_cost(tuple(list(range(g.num_nodes)))) not in mapping:
-      mapping[g.path_cost(tuple(list(range(g.num_nodes))))] = []
-    mapping[g.path_cost(tuple(list(range(g.num_nodes))))] += ["Null"]
+    null_path = list(range(g.num_nodes))
+    if g.is_valid_hamiltonian(null_path):
+        results.append(list(range(g.num_nodes)))
+        if g.path_cost(tuple(list(range(g.num_nodes)))) not in mapping:
+            mapping[g.path_cost(tuple(list(range(g.num_nodes))))] = []
+        mapping[g.path_cost(tuple(list(range(g.num_nodes))))] += ["Null"]
 
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
