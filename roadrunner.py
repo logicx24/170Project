@@ -40,10 +40,14 @@ for i in range(start, end+1):
 
                   if heuristic == Graph.BASIC:
                       mapping[g.path_cost(tuple(path))] += ["Basic"]
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Basic")
                   elif heuristic == Graph.SMART:
                       mapping[g.path_cost(tuple(path))] += ["Smart"]
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Smart")
                   elif heuristic == Graph.BINOCULARS:
                       mapping[g.path_cost(tuple(path))] += ["Binoculars"]
+                      print "path with cost {0} found by {1}".format(g.path_cost(tuple(path)), "Binoculars")
+
                 else:
                   print "{0} found no valid path".format(heuristic)
             except ValueError as e:
