@@ -1,7 +1,6 @@
 import numpy as np
 import time
 from multiprocessing import *
-import queue
 import math
 
 COLOR_LIMIT = 3
