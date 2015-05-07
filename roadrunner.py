@@ -10,7 +10,7 @@ for i in range(406,496):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}
-    heuristics = [Graph.BASIC, Graph.SMART]
+    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
     for graph in [g, g.reweight()]:
         for heuristic in heuristics:
             try:
@@ -27,7 +27,8 @@ for i in range(406,496):
                     mapping[g.path_cost(tuple(path))] += ["Basic"]
                 elif heuristic == Graph.SMART:
                     mapping[g.path_cost(tuple(path))] += ["Smart"]
-
+                elif heuristic == Graph.BINOCULARS:
+                    mapping[g.path_cost(tuple(path))] += ["Binoculars"]
             except IndexError as e:
                 print "\t\tERROR in {0}".format(heuristic)
                 continue
@@ -51,7 +52,7 @@ for i in range(406,496):
 
     # Direct Dynamic Solver (if applicable)
     if g.num_nodes <= DYNAMIC_THRESHOLD:
-        print "USING DYNAMIC SOLVER"
+        print "USING DYNAMIC SOLVER for " + str(i)
         dynamic_path, dynamic_cost = dynamicSolver(g)
         if dynamic_path == None or not g.is_valid_hamiltonian(dynamic_path):
             print "\t\tERROR in DIRECT DYNAMIC SOLVER"
@@ -66,13 +67,11 @@ for i in range(406,496):
 
             mapping[g.path_cost(tuple(dynamic_path))] += ["Dynamic"]
 
+    results.append(list(range(g.num_nodes)))
+
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
         best_algs = mapping[g.path_cost(tuple(best))]
-        # try:
-        #     best_algs += mapping[g.path_cost(tuple(best[)::-1])]
-        # except KeyError:
-        #     pass
         answers.append(best)
         open("{0}".format(OUTPUT_FILE), 'a').write(" ".join([str(node) for node in best]) + "\n")
         print "Answer found for {0} with ".format(i) + str(best_algs)
