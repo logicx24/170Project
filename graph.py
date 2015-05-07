@@ -364,7 +364,7 @@ class Graph(object):
   # more like slightly educated heuristic. like barely high school graduate who enlisted in the marines
   # and served 4 years, left with a honorable discharge, became a carpenter in a quiet suburban neighborhood
   # in the midwest, lived a simple, happy life.
-  def smart_heuristic(self, path, remaining_edges, edges=None):
+  def smart_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       # left_endpoint, right_endpoint = path[0], path[-1]
       # weighter = lambda edge: self.get_weight(edge[0], edge[1])
       # left_weighter = lambda edge: self.f(edge, edge[0] if edge[1] == left_endpoint else edge[1])
@@ -379,7 +379,7 @@ class Graph(object):
       # else:
       #   return min(right_edges, key=right_weighter)
 
-      return sorted(edges, key=lambda edge: self.f_smart(edge, path))
+      return ranking_method(edges, key=lambda edge: self.f_smart(edge, path))
 
   def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
@@ -394,15 +394,19 @@ class Graph(object):
 
       return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
 
-  def smart_binoculars_heuristic(self, path, remaining_edges, edges=None):
+  def smart_binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
     edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
     paths = [self.append_edge(path, edge) for edge in edges]
-    best_paths = sorted(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
+    best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
     # return edges[paths.index(best_path)]
-    return [edges[paths.index(best_path)] for best_path in best_paths]
+    
+    if ranking_method == sorted:
+      return [edges[paths.index(best_path)] for best_path in best_paths]
+
+    return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
 
   # the wisest heuristic of them all
-  def guru_heuristic(self, path, remaining_edges, edges=None, weights=None):
+  def guru_heuristic(self, path, remaining_edges, edges=None, weights=None, ranking_method=min):
       heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
       weights = weights or [0.5, 0.2, 2]
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
@@ -417,7 +421,11 @@ class Graph(object):
                   scores[edge] += prizes[index] * weights[h_index]
       best_score = max(scores.values())
       best_edges = [edge for edge in edges if scores[edge] == best_score]
-      return best_edges
+      
+      if ranking_method == sorted:
+        return best_edges
+
+      return best_edges[0]
 
   # dont consult this one
   def stubborn_heuristic(self, path, remaining_edges, edges=None):
