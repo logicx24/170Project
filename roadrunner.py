@@ -2,11 +2,11 @@ from graph import Graph
 from kruskal_path import kruskalsSolver
 from dynamic_programming import dynamicSolver
 
-OUTPUT_FILE = "answer.out"
+OUTPUT_FILE = "answer126to250.out"
 DYNAMIC_THRESHOLD = 10
 
 answers = []
-for i in range(406,496):
+for i in range(126,250):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}

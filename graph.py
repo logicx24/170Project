@@ -1,5 +1,8 @@
 import numpy as np
 import time
+from multiprocessing import *
+import queue
+import math
 
 COLOR_LIMIT = 3
 
@@ -30,7 +33,7 @@ def timer(func):
     start = time.time()
     result = func(*args)
     end = time.time()
-    print "Time elapsed: {0}".format(end-start)
+    #print "Time elapsed: {0}".format(end-start)
     return result
 
 class Graph(object):
@@ -341,8 +344,8 @@ class Graph(object):
               path = path + [new_node]
 
           if printer and print_path:
-              print path
-
+              print(path)
+              #pass
       return path
 
   def is_valid_coloring(self, path):
@@ -384,7 +387,38 @@ class Graph(object):
   def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
       paths = [self.append_edge(path, edge) for edge in edges]
-      best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
+      output = Queue();
+      nprocs = cpu_count();
+      procs = []
+      #best_paths = ranking_method()
+
+      #worker = lambda path: self.path_cost(self.greedy(Graph.BASIC, path))
+      def worker(paths, q):
+        #print(paths)
+        tmp = []
+        for path in paths:
+          ret = self.path_cost(self.greedy(Graph.BASIC, path))
+          tmp.append({ret : path})
+          #print(tmp)
+        q.put(tmp)
+
+      chunks = int(math.ceil(len(paths)/float(nprocs)))
+
+      for i in range(nprocs):
+        p = Process(target=worker,args=(paths[chunks*i:chunks*(i+1)], output))
+        procs.append(p)
+        p.start()
+
+      res = {}
+      for i in range(nprocs):
+        lst = output.get()
+        for dicter in lst: 
+          res.update(dicter)
+
+      for proc in procs:
+        proc.join()
+
+      best_paths = res[ranking_method(res.keys())]
 
       # return edges[paths.index(best_path)]
 
@@ -553,27 +587,27 @@ class Graph(object):
 
         #Shortest path for clustering
 
-    def initialize(self, source):
-        d = {} # Stands for destination
-        p = {} # Stands for predecessor
-        for node in range(self.num_nodes):
-            d[node] = float('Inf')
-            p[node] = None
-        d[source] = 0 
-        return d, p
+    # def initialize(self, source):
+    #     d = {} # Stands for destination
+    #     p = {} # Stands for predecessor
+    #     for node in range(self.num_nodes):
+    #         d[node] = float('Inf')
+    #         p[node] = None
+    #     d[source] = 0 
+    #     return d, p
    
-    def relax(self, node, neighbour, d, p):
-        if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
-            d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
-            p[neighbour] = node
+    # def relax(self, node, neighbour, d, p):
+    #     if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
+    #         d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
+    #         p[neighbour] = node
    
-    def bellman_ford(self, source):
-        d, p = self.initialize(source)
-        for i in range(self.num_nodes-1): 
-            for u in range(self.num_nodes):
-                for v in range(self.num_nodes): 
-                    self.relax(u, v, d, p) 
-        return d
+    # def bellman_ford(self, source):
+    #     d, p = self.initialize(source)
+    #     for i in range(self.num_nodes-1): 
+    #         for u in range(self.num_nodes):
+    #             for v in range(self.num_nodes): 
+    #                 self.relax(u, v, d, p) 
+    #     return d
 
 # other functions
 
@@ -581,7 +615,7 @@ def run_to_convergence(graph):
     graph2 = graph.reweight()
     i = 1
     while not graph2.is_same(graph2.reweight()):
-        print i
+        #print i
         graph2 = graph2.reweight()
         i += 1
     return graph2
