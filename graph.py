@@ -1,7 +1,7 @@
 import numpy as np
 import time
-from multiprocessing import *
 import math
+import sys
 
 COLOR_LIMIT = 3
 
@@ -298,7 +298,7 @@ class Graph(object):
   # APPROXIMATION ALGORITHMS
 
   # todo: allow the selection of the first edge to be different or to even be iterative
-  def greedy(self, heuristic=BASIC, path=None, printer=False):
+  def greedy(self, heuristic=BASIC, path=None, printer=False, should_parallelize=False):
       """ The implementation of the greedy solution without any special stuff """
 
       # set the default heurisitic if none are provided
@@ -326,7 +326,10 @@ class Graph(object):
           left_endpoint, right_endpoint = path[0], path[-1]
 
           # using the passed in heuristic, pass in the path up to that point
-          new_edge = heuristic_func(path, remaining_edges=remaining_edges)
+          if heuristic == Graph.BINOCULARS:
+            new_edge = heuristic_func(path, remaining_edges=remaining_edges, should_parallelize=should_parallelize)
+          else:
+            new_edge = heuristic_func(path, remaining_edges=remaining_edges)
 
           if new_edge is None:
             return None
@@ -390,52 +393,63 @@ class Graph(object):
       except ValueError as e:
         return None
 
-  def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
-      edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
-      paths = [self.append_edge(path, edge) for edge in edges]
-      output = Queue();
-      nprocs = cpu_count();
-      procs = []
-      #best_paths = ranking_method()
+  def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min, should_parallelize=False):
+      if should_parallelize:
+        import multiprocessing
 
-      #worker = lambda path: self.path_cost(self.greedy(Graph.BASIC, path))
-      def worker(paths, q):
-        #print(paths)
-        tmp = []
-        for path in paths:
-          path_found = self.greedy(Graph.BASIC, path)
-          if path_found is not None:
-            ret = self.path_cost(self.greedy(Graph.BASIC, path))
-            tmp.append({ret : path})
-          #print(tmp)
-        q.put(tmp)
+        edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
+        paths = [self.append_edge(path, edge) for edge in edges]
+        output = multiprocessing.Queue();
+        nprocs = multiprocessing.cpu_count();
+        procs = []
+        #best_paths = ranking_method()
 
-      chunks = int(math.ceil(len(paths)/float(nprocs)))
+        #worker = lambda path: self.path_cost(self.greedy(Graph.BASIC, path))
+        def worker(paths, q):
+          #print(paths)
+          tmp = []
+          for path in paths:
+            path_found = self.greedy(Graph.BASIC, path)
+            if path_found is not None:
+              ret = self.path_cost(self.greedy(Graph.BASIC, path))
+              tmp.append({ret : path})
+          q.put(tmp)
 
-      for i in range(nprocs):
-        p = Process(target=worker,args=(paths[chunks*i:chunks*(i+1)], output))
-        procs.append(p)
-        p.start()
+        chunks = int(math.ceil(len(paths)/float(nprocs)))
 
-      res = {}
-      for i in range(nprocs):
-        lst = output.get()
-        for dicter in lst:
-          res.update(dicter)
+        for i in range(nprocs):
+          p = multiprocessing.Process(target=worker,args=(paths[chunks*i:chunks*(i+1)], output))
+          procs.append(p)
+          p.start()
 
-      for proc in procs:
-        proc.join()
+        res = {}
+        for i in range(nprocs):
+          lst = output.get()
+          for dicter in lst:
+            res.update(dicter)
 
-      try:
-        best_paths = res[min(res.keys())]
-      except ValueError as e:
-        return None
+        for proc in procs:
+          proc.join()
 
-      # return edges[paths.index(best_path)]
+        try:
+          best_paths = res[min(res.keys())]
+        except ValueError as e:
+          return None
+        # return edges[paths.index(best_path)]
 
-      if ranking_method == sorted:
-        best_edges = [edges[paths.index(best_path)] for best_path in best_paths]
-        return best_edges
+        if ranking_method == sorted:
+          best_edges = [edges[paths.index(best_path)] for best_path in best_paths]
+          return best_edges
+
+        return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
+      else:
+        edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
+        paths = [self.append_edge(path, edge) for edge in edges]
+        best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
+        # return edges[paths.index(best_path)]
+
+        if ranking_method == sorted:
+          return [edges[paths.index(best_path)] for best_path in best_paths]
 
       try:
         return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
@@ -445,7 +459,7 @@ class Graph(object):
   def smart_binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
     edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
     paths = [self.append_edge(path, edge) for edge in edges]
-    best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
+    best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
     # return edges[paths.index(best_path)]
 
     if ranking_method == sorted:
