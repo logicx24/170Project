@@ -328,6 +328,9 @@ class Graph(object):
           # using the passed in heuristic, pass in the path up to that point
           new_edge = heuristic_func(path, remaining_edges=remaining_edges)
 
+          if new_edge is None:
+            return None
+
           remaining_edges.remove(new_edge)
 
           # add the new edge to the proper side of the path
@@ -360,7 +363,10 @@ class Graph(object):
 
   def general_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
-      return ranking_method(edges, key=lambda edge: self.get_weight(edge[0], edge[1]))
+      try:
+        return ranking_method(edges, key=lambda edge: self.get_weight(edge[0], edge[1]))
+      except ValueError as e:
+        return None
 
   # more like slightly educated heuristic. like barely high school graduate who enlisted in the marines
   # and served 4 years, left with a honorable discharge, became a carpenter in a quiet suburban neighborhood
@@ -379,8 +385,10 @@ class Graph(object):
       #   return min(left_edges, key=left_weighter)
       # else:
       #   return min(right_edges, key=right_weighter)
-
-      return ranking_method(edges, key=lambda edge: self.f_smart(edge, path))
+      try:
+        return ranking_method(edges, key=lambda edge: self.f_smart(edge, path))
+      except ValueError as e:
+        return None
 
   def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
@@ -395,8 +403,10 @@ class Graph(object):
         #print(paths)
         tmp = []
         for path in paths:
-          ret = self.path_cost(self.greedy(Graph.BASIC, path))
-          tmp.append({ret : path})
+          path_found = self.greedy(Graph.BASIC, path)
+          if path_found is not None:
+            ret = self.path_cost(self.greedy(Graph.BASIC, path))
+            tmp.append({ret : path})
           #print(tmp)
         q.put(tmp)
 
@@ -416,7 +426,10 @@ class Graph(object):
       for proc in procs:
         proc.join()
 
-      best_paths = res[ranking_method(res.keys())]
+      try:
+        best_paths = res[min(res.keys())]
+      except ValueError as e:
+        return None
 
       # return edges[paths.index(best_path)]
 
@@ -424,7 +437,10 @@ class Graph(object):
         best_edges = [edges[paths.index(best_path)] for best_path in best_paths]
         return best_edges
 
-      return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
+      try:
+        return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
+      except IndexError as e:
+        return None
 
   def smart_binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
     edges = edges or self.valid_options(path, remaining_edges=remaining_edges)

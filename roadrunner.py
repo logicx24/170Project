@@ -29,20 +29,23 @@ for i in range(start, end+1):
             try:
                 path = graph.greedy(heuristic)
                 # path = graph.greedy(heuristic, printer=True) # use this instead if you want to see how each heuristic is building up its path
-                results.append(path)
+                if path is not None:
+                  results.append(path)
 
-                # instantiate a list for an empty path
-                try:
-                    a = mapping[g.path_cost(tuple(path))]
-                except KeyError:
-                    mapping[g.path_cost(tuple(path))] = []
+                  # instantiate a list for an empty path
+                  try:
+                      a = mapping[g.path_cost(tuple(path))]
+                  except KeyError:
+                      mapping[g.path_cost(tuple(path))] = []
 
-                if heuristic == Graph.BASIC:
-                    mapping[g.path_cost(tuple(path))] += ["Basic"]
-                elif heuristic == Graph.SMART:
-                    mapping[g.path_cost(tuple(path))] += ["Smart"]
-                elif heuristic == Graph.BINOCULARS:
-                    mapping[g.path_cost(tuple(path))] += ["Binoculars"]
+                  if heuristic == Graph.BASIC:
+                      mapping[g.path_cost(tuple(path))] += ["Basic"]
+                  elif heuristic == Graph.SMART:
+                      mapping[g.path_cost(tuple(path))] += ["Smart"]
+                  elif heuristic == Graph.BINOCULARS:
+                      mapping[g.path_cost(tuple(path))] += ["Binoculars"]
+                else:
+                  print "{0} found no valid path".format(heuristic)
             except ValueError as e:
                 print "\t\tERROR in {0}".format(heuristic)
                 continue
