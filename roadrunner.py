@@ -17,8 +17,12 @@ try:
 except Exception as e:
   start, end = 376, 495 # TODO change these according to your file assignments!
 
-OUTPUT_FILE = "answer" + str(start) + "to" + str(end) + ".out"
+try:
+    should_parallelize = sys.argv[3] == "--parallel"
+except IndexError:
+    should_parallelize = False
 
+OUTPUT_FILE = "answer" + str(start) + "to" + str(end) + ".out"
 for i in range(start, end+1):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
@@ -27,7 +31,7 @@ for i in range(start, end+1):
     for graph in [g, g.reweight()]:
         for heuristic in heuristics:
             try:
-                path = graph.greedy(heuristic)
+                path = graph.greedy(heuristic, should_parallelize=should_parallelize)
                 # path = graph.greedy(heuristic, printer=True) # use this instead if you want to see how each heuristic is building up its path
                 results.append(path)
 
