@@ -37,6 +37,13 @@ class TestDynamicSolver(unittest.TestCase):
 
         self._check(graph.is_valid_hamiltonian(actual_path), True)
 
+    def test_ten_nodes3_valid_hamiltonian(self):
+
+        graph = Graph(open(TEST_PATH + 'ten_nodes3.in').read())
+        actual_path, actual_dist = dynamicSolver(graph)
+
+        self._check(graph.is_valid_hamiltonian(actual_path), True)
+
     def test_twelve_nodes1_valid_hamiltonian(self):
 
         graph = Graph(open(TEST_PATH + 'twelve_nodes1.in').read())
