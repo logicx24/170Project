@@ -2,19 +2,20 @@ from graph import Graph
 from kruskal_path import kruskalsSolver
 from dynamic_programming import dynamicSolver
 
-OUTPUT_FILE = "answer.out"
+OUTPUT_FILE = "answer1to125.out"
 DYNAMIC_THRESHOLD = 10
 
 answers = []
-for i in range(406,496):
+for i in range(1,125):
     g = Graph(open("instances/{0}.in".format(i)).read())
     results = []
     mapping = {}
-    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
+    heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS, Graph.SMART_BINOCULARS]
     for graph in [g, g.reweight()]:
         for heuristic in heuristics:
             try:
                 path = graph.greedy(heuristic)
+                # path = graph.greedy(heuristic, printer=True) # use this instead if you want to see how each heuristic is building up its path
                 results.append(path)
 
                 # instantiate a list for an empty path
@@ -29,6 +30,8 @@ for i in range(406,496):
                     mapping[tuple(path)] += ["Smart"]
                 elif heuristic == Graph.BINOCULARS:
                     mapping[tuple(path)] += ["Binoculars"]
+                elif heuristic == Graph.SMART_BINOCULARS:
+                    mapping[tuple(path)] += ["Smart Binoculars"]
 
             except IndexError as e:
                 print "\t\tERROR in {0}".format(heuristic)
@@ -38,7 +41,7 @@ for i in range(406,496):
     #
 
     # Kruskals
-    kruskals_path, kruskals_cost = kruskalsSolver(g) 
+    kruskals_path, kruskals_cost = kruskalsSolver(g)
     if kruskals_path == None or not g.is_valid_hamiltonian(kruskals_path):
         print "\t\tERROR in KRUSKALS"
     else:

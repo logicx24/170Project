@@ -399,7 +399,7 @@ class Graph(object):
     paths = [self.append_edge(path, edge) for edge in edges]
     best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
     # return edges[paths.index(best_path)]
-    
+
     if ranking_method == sorted:
       return [edges[paths.index(best_path)] for best_path in best_paths]
 
@@ -421,14 +421,14 @@ class Graph(object):
                   scores[edge] += prizes[index] * weights[h_index]
       best_score = max(scores.values())
       best_edges = [edge for edge in edges if scores[edge] == best_score]
-      
+
       if ranking_method == sorted:
         return best_edges
 
       return best_edges[0]
 
   # dont consult this one
-  def stubborn_heuristic(self, path, remaining_edges, edges=None):
+  def stubborn_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
       return "No"
 
   # TOOLS USED IN HEURISTICS
@@ -550,30 +550,6 @@ class Graph(object):
                   new_node = new_edge[1]
               path = path + [new_node]
       return path
-
-        #Shortest path for clustering
-
-    def initialize(self, source):
-        d = {} # Stands for destination
-        p = {} # Stands for predecessor
-        for node in range(self.num_nodes):
-            d[node] = float('Inf')
-            p[node] = None
-        d[source] = 0 
-        return d, p
-   
-    def relax(self, node, neighbour, d, p):
-        if d[neighbour] > d[node] + self.weights_matrix[node][neighbour]:
-            d[neighbour] = d[node] + self.weights_matrix[node][neighbour]
-            p[neighbour] = node
-   
-    def bellman_ford(self, source):
-        d, p = self.initialize(source)
-        for i in range(self.num_nodes-1): 
-            for u in range(self.num_nodes):
-                for v in range(self.num_nodes): 
-                    self.relax(u, v, d, p) 
-        return d
 
 # other functions
 
