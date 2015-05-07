@@ -21,7 +21,7 @@ DYNAMIC_THRESHOLD = 12
 
 answers = []
 
-should_parallelize = True
+should_parallelize = False
 i = 253
 g = Graph(open("instances/{0}.in".format(i)).read())
 results = []
