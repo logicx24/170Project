@@ -66,6 +66,8 @@ for i in range(406,496):
 
             mapping[tuple(dynamic_path)] += ["Dynamic"]
 
+    results.append(list(range(g.num_nodes)))
+
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
         best_algs = mapping[tuple(best)]
