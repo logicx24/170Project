@@ -19,14 +19,14 @@ for i in range(406,496):
 
                 # instantiate a list for an empty path
                 try:
-                    a = mapping[tuple(path)]
+                    a = mapping[g.path_cost(tuple(path))]
                 except KeyError:
-                    mapping[tuple(path)] = []
+                    mapping[g.path_cost(tuple(path))] = []
 
                 if heuristic == Graph.BASIC:
-                    mapping[tuple(path)] += ["Basic"]
+                    mapping[g.path_cost(tuple(path))] += ["Basic"]
                 elif heuristic == Graph.SMART:
-                    mapping[tuple(path)] += ["Smart"]
+                    mapping[g.path_cost(tuple(path))] += ["Smart"]
 
             except IndexError as e:
                 print "\t\tERROR in {0}".format(heuristic)
@@ -43,34 +43,36 @@ for i in range(406,496):
         results.append(kruskals_path)
                         # instantiate a list for an empty path
         try:
-            a = mapping[tuple(kruskals_path)]
+            a = mapping[g.path_cost(tuple(kruskals_path))]
         except KeyError:
-            mapping[tuple(kruskals_path)] = []
+            mapping[g.path_cost(tuple(kruskals_path))] = []
 
-        mapping[tuple(kruskals_path)] += ["Kruskals"]
+        mapping[g.path_cost(tuple(kruskals_path))] += ["Kruskals"]
 
     # Direct Dynamic Solver (if applicable)
     if g.num_nodes <= DYNAMIC_THRESHOLD:
+        print "USING DYNAMIC SOLVER"
         dynamic_path, dynamic_cost = dynamicSolver(g)
         if dynamic_path == None or not g.is_valid_hamiltonian(dynamic_path):
             print "\t\tERROR in DIRECT DYNAMIC SOLVER"
+            print dynamic_path
         else:
             results.append(dynamic_path)
 
             try:
-                a = mapping[tuple(dynamic_path)]
+                a = mapping[g.path_cost(tuple(dynamic_path))]
             except KeyError:
-                mapping[tuple(dynamic_path)] = []
+                mapping[g.path_cost(tuple(dynamic_path))] = []
 
-            mapping[tuple(dynamic_path)] += ["Dynamic"]
+            mapping[g.path_cost(tuple(dynamic_path))] += ["Dynamic"]
 
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
-        best_algs = mapping[tuple(best)]
-        try:
-            best_algs += mapping[tuple(best[::-1])]
-        except KeyError:
-            pass
+        best_algs = mapping[g.path_cost(tuple(best))]
+        # try:
+        #     best_algs += mapping[g.path_cost(tuple(best[)::-1])]
+        # except KeyError:
+        #     pass
         answers.append(best)
         open("{0}".format(OUTPUT_FILE), 'a').write(" ".join([str(node) for node in best]) + "\n")
         print "Answer found for {0} with ".format(i) + str(best_algs)

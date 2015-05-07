@@ -101,7 +101,11 @@ def dynamicSolverFromStart(graph, start):
     all_nodes = set(range(n))
 
     collection = {}
-    collection[((start,), start)] = DynamicNode({start})   ### set to a dynamic node
+    if graph.is_red(start):
+        collection[((start,), start)] = DynamicNode({start}, red_count=1)   ### set to a dynamic node
+    else:
+        collection[((start,), start)] = DynamicNode({start}, blue_count=1)   ### set to a dynamic node
+
     for s in range(2, n+1):
         all_nodes_but_one = all_nodes - {start}
         for subset in itertools.combinations(all_nodes_but_one, s-1):
@@ -148,7 +152,7 @@ def dynamicSolverFromStart(graph, start):
                         # elif new_node.prev.blue_count == COLOR_LIMIT and graph.get_color(vertex_added) != 'R':
                         #     print "VIOLATION: Added 4th BLUE"
 
-                        # print "ADDED ", graph.get_color(vertex_added)
+                        # print "ADDED ", graph.get_color(vertex_added), "VERT: ", vertex_added
                         # print "NEW RED: ", new_node.red_count
                         # print "OLD RED: ", new_node.prev.red_count
                         # print "NEW BLUE: ", new_node.blue_count
