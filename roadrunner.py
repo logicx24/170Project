@@ -70,9 +70,9 @@ for i in range(6,125):
 
     results.append(list(range(g.num_nodes)))
 
-    if tuple(list(range(g.num_nodes))) not in mapping:
-      mapping[tuple(list(range(g.num_nodes)))] = []
-    mapping[tuple(list(range(g.num_nodes)))] += ["Null"]
+    if g.path_cost(tuple(list(range(g.num_nodes)))) not in mapping:
+      mapping[g.path_cost(tuple(list(range(g.num_nodes))))] = []
+    mapping[g.path_cost(tuple(list(range(g.num_nodes))))] += ["Null"]
 
     if len(results) > 0:
         best = min(results, key=lambda path: g.path_cost(path))
