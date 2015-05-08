@@ -2,6 +2,7 @@ import numpy as np
 import time
 import math
 import sys
+import random
 
 COLOR_LIMIT = 3
 
@@ -41,7 +42,7 @@ class Graph(object):
 	BASIC = 1
 	SMART = 2
 	BINOCULARS = 3
-	GURU = 4
+	BABAJI = 4
 	STUBBORN = 5
 	SMART_BINOCULARS = 6
 
@@ -467,7 +468,7 @@ class Graph(object):
 		return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
 
 	# the wisest heuristic of them all
-	def guru_heuristic(self, path, remaining_edges, edges=None, weights=None, ranking_method=min):
+	def babaji_heuristic(self, path, remaining_edges, edges=None, weights=None, ranking_method=min):
 			heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
 			weights = weights or [0.5, 0.2, 2]
 			edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
@@ -559,8 +560,8 @@ class Graph(object):
 			heuristic_func = self.smart_heuristic
 		elif heuristic is Graph.BINOCULARS:
 			heuristic_func = self.binoculars_heuristic
-		elif heuristic is Graph.GURU:
-			heuristic_func = self.guru_heuristic
+		elif heuristic is Graph.BABAJI:
+			heuristic_func = self.babaji_heuristic
 		elif heuristic is Graph.STUBBORN:
 			heuristic_func = self.stubborn_heuristic
 		elif heuristic is Graph.SMART_BINOCULARS:
