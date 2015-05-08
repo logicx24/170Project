@@ -435,15 +435,15 @@ class Graph(object):
           proc.join()
 
         try:
-          if heuristic_func != sorted:
+          if ranking_method != sorted:
             best_paths = res[min(res.keys())]
-          elif heuristic_func == sorted:
+          elif ranking_method == sorted:
             best_paths = [res[cost] for cost in sorted(res.values())]
         except ValueError as e:
           return None
         # return edges[paths.index(best_path)]
 
-        if heuristic_func == sorted:
+        if ranking_method == sorted:
           return [edges[paths.index(best_path)] for best_path in best_paths]
         return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
       else:
