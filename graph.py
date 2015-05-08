@@ -155,6 +155,9 @@ class Graph(object):
       """
       return tuple(sorted((node1, node2)))
 
+  def sorted_edges_through_node(self, node):
+	  return sorted(self.weights_matrix[node])	
+
   def get_avg_weight(self):
       weight_sum = 0.0
       num_edges = 0.5 * self.num_nodes * (self.num_nodes - 1)
