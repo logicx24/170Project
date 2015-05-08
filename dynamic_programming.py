@@ -84,8 +84,19 @@ def sort_to_tuple(my_set):
     return tuple(sorted(list(my_set)))
 
 def dynamicSolver(graph):
-    #print graph
 
+    n = graph.num_nodes
+    best_val = float("inf")
+    best_path = None
+    for start in range(n):
+        path, val = dynamicSolverFromStart(graph, start)
+        if val < best_val:
+            best_val = val
+            best_path = path
+    return best_path, best_val
+
+
+def quickDynamicSolver(graph):
     n = graph.num_nodes
     best_val = float("inf")
     best_path = None
@@ -102,15 +113,15 @@ def dynamicSolverFromStart(graph, start):
 
     collection = {}
     if graph.is_red(start):
-        collection[((start,), start)] = DynamicNode({start}, red_count=1)   ### set to a dynamic node
+        collection[((start,), start)] = DynamicNode({start}, red_count=1)
     else:
-        collection[((start,), start)] = DynamicNode({start}, blue_count=1)   ### set to a dynamic node
+        collection[((start,), start)] = DynamicNode({start}, blue_count=1)
 
     for s in range(2, n+1):
         all_nodes_but_one = all_nodes - {start}
         for subset in itertools.combinations(all_nodes_but_one, s-1):
-            subset = set(subset).union({start})                                 # add in the first node to the subset
-            collection[(sort_to_tuple(subset), start)] = DynamicNode(subset, value=float("inf"))      ### set to a DynamicNode
+            subset = set(subset).union({start})            # add in the first node to the subset
+            collection[(sort_to_tuple(subset), start)] = DynamicNode(subset, value=float("inf"))
             for j in sort_to_tuple(subset):
                 if j == start:
                     continue
