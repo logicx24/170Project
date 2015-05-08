@@ -96,7 +96,30 @@ def dynamicSolver(graph):
             best_path = path
     return best_path, best_val
 
-def dynamicSolverParallel(graph):
+def dynamicSolverParallel(graph, parallelize=True):
+
+    n = graph.num_nodes
+
+    if parallelize:
+        start_lst = []
+        for i in range(n):
+            sorted_edges = graph.sorted_edges_through_node(i)
+            # print sorted_edges
+            diff = sorted_edges[2] - sorted_edges[1]
+            tup = (i, diff)
+            if len(start_lst) == 10:
+                if diff > start_lst[0][1]:
+                    start_lst[0] = tup
+            else:
+                start_lst.append(tup)
+            start_lst = sorted(start_lst, key=lambda tup:tup[1])
+
+        # print start_lst
+        starts = [node for node, diff in start_lst]
+        print "Running on end nodes: ", ', '.join([str(x) for x in start])
+    else:
+        starts = list(range(graph.num_nodes))
+
     import multiprocessing
 
     q = multiprocessing.Queue()
@@ -113,7 +136,6 @@ def dynamicSolverParallel(graph):
 
     nprocs = multiprocessing.cpu_count()
     procs = []
-    starts = list(range(graph.num_nodes))
     chunks = int(math.ceil(len(starts)/float(nprocs)))
     for i in range(nprocs):
         p = multiprocessing.Process(target=worker, args=(q, starts[(chunks*i):(chunks*(i+1))]))
