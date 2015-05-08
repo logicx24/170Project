@@ -1,9 +1,10 @@
 import numpy
 import itertools
+import random
 from graph import Graph, COLOR_LIMIT
 import math
 
-def cluster(graph, limit):
+def cluster(graph, limit=10):
     k = graph.num_nodes//limit
     d = {}
     for node in range(graph.num_nodes):
@@ -45,9 +46,44 @@ def cluster(graph, limit):
 
     return clusters
 
-def cluster_and_solve(graph, cluster_size):
+def cluster_random(graph, limit=10):
+    print "ENTERED CLUSTER_RANDOM"
+    k = graph.num_nodes//limit
+    # nodes_per_cluster = graph.num_nodes/k
+    shuffled_nodes = range(graph.num_nodes)
+    random.shuffle(shuffled_nodes)
+    cluster_nodes = [shuffled_nodes[i*limit:(i+1)*limit] for i in range(0, k)]
+    # ks = shuffled_nodes[::limit] # cluster centers
+    ks = [random.choice(cluster) for cluster in cluster_nodes]
+    print "cluster centers:", ks
+
+    # clusters = {k:[] for k in ks}
+
+    clusters = dict((ks[i], cluster_nodes[i]) for i in range(len(cluster_nodes)))
+
+    # go through all the nodes and decide which cluster they belong to
+    # for node in range(graph.num_nodes):
+    #     random_cluster = random.choice(ks)
+    #     num_reds = sum([1 for node in clusters[random_cluster] if graph.is_red(node)])
+    #     num_blues = sum([1 for node in clusters[random_cluster] if graph.is_blue(node)])
+    #     while (graph.is_red(node) and num_reds > 3 and num_reds > 8) or (graph.is_blue(node) and num_blues > 3 and num_blues  > 8) or (len(clusters[random_cluster]) >= limit):
+    #         random_cluster = random.choice(ks)
+    #         num_reds = sum([1 for node in clusters[random_cluster] if graph.is_red(node)])
+    #         num_blues = sum([1 for node in clusters[random_cluster] if graph.is_blue(node)])
+
+
+
+        # clusters[random_cluster].append(node)
+
+    return clusters
+
+def cluster_and_solve(graph, cluster_size=10, random_clusters=False):
     
-    clusters = cluster(graph, cluster_size)
+    if random_clusters:
+        clusters = cluster_random(graph, cluster_size)
+        print "clusters:", clusters
+    else:
+        clusters = cluster(graph, cluster_size)
     
     graphs = []
     node_maps = {}
@@ -209,7 +245,10 @@ def dynamicSolverFromStart(graph, start):
                     
                     for i in sort_to_tuple(subset):
                         if i != j:
-                            val = collection[(sort_to_tuple(subset - {j}), i)].value + graph.get_weight(i, j)
+                            val = collection[(sort_to_tuple(subset - {j}), i)].value # + graph.get_weight(i, j)
+                            # print graph
+                            # print "weight of edge (", i, ",", j, "):", graph.get_weight(i, j)
+                            val += graph.get_weight(i, j)
                             node = collection[(sort_to_tuple(subset - {j}), i)]
                             if val < min_val and cond(j, node, graph):
                                 min_val = val

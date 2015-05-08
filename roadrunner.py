@@ -4,7 +4,7 @@ import sys
 
 from graph import Graph
 from kruskal_path import kruskalsSolver
-from dynamic_programming import dynamicSolver
+from dynamic_programming import dynamicSolver, cluster_and_solve
 
 
 DYNAMIC_THRESHOLD = 12
@@ -15,7 +15,7 @@ answers = []
 try:
   start, end = int(sys.argv[1]), int(sys.argv[2])
 except Exception as e:
-  start, end = 376, 495 # TODO change these according to your file assignments!
+  start, end = 1, 495 # TODO change these according to your file assignments!
 
 try:
     should_parallelize = "--parallel" in sys.argv
@@ -97,6 +97,19 @@ for i in range(start, end+1):
 
             mapping[g.path_cost(tuple(dynamic_path))] += ["Dynamic"]
 
+    # Random Clustering
+    print "USING RANDOM CLUSTER SOLVER for " + str(i)
+    cluster_path = cluster_and_solve(g, random_clusters=True)
+    print g.trace_path(cluster_path)
+    while cluster_path == None or not g.is_valid_hamiltonian(cluster_path):
+        cluster_path = cluster_and_solve(g, random_clusters=True)
+        print "\t\tERROR in RANDOM CLUSTER SOLVER: not valid path"
+    else:
+        results.append(cluster_path)
+        if g.path_cost(tuple(cluster_path)) not in mapping:
+            mapping[g.path_cost(tuple(cluster_path))] = []
+        mapping[g.path_cost(tuple(cluster_path))] += ["Random Cluster"]
+
     # Null heuristic
     null_path = list(range(g.num_nodes))
     if g.is_valid_hamiltonian(null_path):
@@ -112,6 +125,7 @@ for i in range(start, end+1):
         open("{0}".format(OUTPUT_FILE), 'a').write(" ".join([str(node) for node in best]) + "\n")
         print "Answer found for {0} with ".format(i) + str(best_algs)
     else:
+        open("{0}".format(OUTPUT_FILE), 'a').write("NO ANSWER FOUND FOR {0}".format(i))
         print "********** MISSING ANSWER FOR {0} **********".format(i)
 
 print "Answers finished writing"
