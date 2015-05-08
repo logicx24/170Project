@@ -1,6 +1,7 @@
 import numpy
 import itertools
 from graph import Graph, COLOR_LIMIT
+import math
 
 def cluster(graph, limit):
     k = graph.num_nodes//limit
@@ -95,6 +96,41 @@ def dynamicSolver(graph):
             best_path = path
     return best_path, best_val
 
+def dynamicSolverParallel(graph):
+    import multiprocessing
+
+    q = multiprocessing.Queue()
+    def worker(q, starts):
+        best_val = float("inf")
+        best_path = None
+        print(q)
+        for start in starts:
+            path, val = dynamicSolverFromStart(graph, start)
+            if val < best_val:
+                best_val = val
+                best_path = path
+        q.put((best_path, best_val))
+
+    nprocs = multiprocessing.cpu_count()
+    procs = []
+    starts = list(range(graph.num_nodes))
+    chunks = int(math.ceil(len(starts)/float(nprocs)))
+    for i in range(nprocs):
+        p = multiprocessing.Process(target=worker, args=(q, starts[(chunks*i):(chunks*(i+1))]))
+        procs.append(p)
+        p.start()
+
+    lst = []
+    for i in range(nprocs):
+        res = q.get()
+        lst.append(res)
+
+    print(lst)
+
+    for p in procs:
+        p.join()
+
+    return min(lst, key=lambda x: x[1])
 
 def quickDynamicSolver(graph):
     n = graph.num_nodes
