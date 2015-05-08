@@ -174,9 +174,6 @@ class Graph(object):
 			# remove the edge from the edge list
 			self.all_edges.remove(Graph._get_edge_repr(node1, node2))
 
-	def sorted_edges_through_node(self, node):
-		return sorted(self.weights_matrix[node])
-
 	def has_edge(self, node1, node2):
 			return self.weights_matrix[node1][node2] != -1 and self.weights_matrix[node2][node1] != -1
 
