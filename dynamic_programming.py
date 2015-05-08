@@ -100,7 +100,27 @@ def quickDynamicSolver(graph):
     n = graph.num_nodes
     best_val = float("inf")
     best_path = None
-    for start in range(n):
+
+    start_lst = []
+    for i in range(n):
+        sorted_edges = graph.sorted_edges_through_node(i)
+        # print sorted_edges
+        diff = sorted_edges[2] - sorted_edges[1]
+        tup = (i, diff)
+        if len(start_lst) == 5:
+            if diff > start_lst[0][1]:
+                start_lst[0] = tup
+        else:
+            start_lst.append(tup)
+        start_lst = sorted(start_lst, key=lambda tup:tup[1])
+
+    # print start_lst
+    start_lst = [node for node, diff in start_lst]
+    print "Running on end nodes: ", ', '.join([str(x) for x in start_lst])
+    # return list(range(n)), 10
+
+    for start in start_lst:
+        # print "running on start as {0}".format(start)
         path, val = dynamicSolverFromStart(graph, start)
         if val < best_val:
             best_val = val
