@@ -123,7 +123,7 @@ for i in range(start, end+1):
         best_algs = mapping[g.path_cost(tuple(best))]
         answers.append(best)
         open("{0}".format(OUTPUT_FILE), 'a').write(" ".join([str(node) for node in best]) + "\n")
-        print "Answer found for {0} with ".format(i) + str(best_algs) + " with cost " + best
+        print "Answer found for {0} with ".format(i) + str(best_algs) + " with cost " + g.path_cost(best)
     else:
         open("{0}".format(OUTPUT_FILE), 'a').write("NO ANSWER FOUND FOR {0}".format(i))
         print "********** MISSING ANSWER FOR {0} **********".format(i)
