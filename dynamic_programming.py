@@ -152,7 +152,7 @@ def dynamicSolverParallel(graph, parallelize=True):
 
         # print start_lst
         starts = [node for node, diff in start_lst]
-        print "Running on end nodes: ", ', '.join([str(x) for x in start])
+        print "Running on end nodes: ", ', '.join([str(x) for x in starts])
     else:
         starts = list(range(graph.num_nodes))
 
