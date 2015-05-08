@@ -103,7 +103,7 @@ def dynamicSolverParallel(graph):
     def worker(q, starts):
         best_val = float("inf")
         best_path = None
-        print(q)
+        # print(q)
         for start in starts:
             path, val = dynamicSolverFromStart(graph, start)
             if val < best_val:
