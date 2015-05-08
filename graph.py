@@ -2,6 +2,7 @@ import numpy as np
 import time
 import math
 import sys
+import random
 
 COLOR_LIMIT = 3
 
@@ -41,9 +42,10 @@ class Graph(object):
   BASIC = 1
   SMART = 2
   BINOCULARS = 3
-  GURU = 4
+  BABAJI = 4
   STUBBORN = 5
   SMART_BINOCULARS = 6
+  RANDOM = 7
 
   def __init__(self, file=None, weights_matrix=None, colors_list=None):
       if file:
@@ -362,6 +364,9 @@ class Graph(object):
 
       return "R"*(COLOR_LIMIT+1) not in colors_string and "B"*(COLOR_LIMIT+1) not in colors_string
 
+  def learning_agent(self, iterations=1000):
+    pass
+
   # HEURISTICS FOR GREEDY ALGORITHMS
 
   def general_heuristic(self, path, remaining_edges, edges=None, ranking_method=min):
@@ -392,6 +397,18 @@ class Graph(object):
         return ranking_method(edges, key=lambda edge: self.f_smart(edge, path))
       except ValueError as e:
         return None
+
+  def random_heuristic(self, path, remaining_edges, edges=None):
+    edge_weight = lambda edge: 100 - self.get_weight(edge[0], edge[1])
+    edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
+    total = sum([edge_weight(edge) for edge in edges])
+    bucket = random.randint(0, total)
+    count = 0
+    for edge in edges:
+      if bucket <= count + edge_weight(edge):
+        return edge
+      else:
+        count += edge_weight(edge)
 
   def binoculars_heuristic(self, path, remaining_edges, edges=None, ranking_method=min, should_parallelize=False):
       if should_parallelize:
@@ -444,7 +461,10 @@ class Graph(object):
       else:
         edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
         paths = [self.append_edge(path, edge) for edge in edges]
-        best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.SMART, path)))
+        try:
+          best_paths = ranking_method(paths, key=lambda path: self.path_cost(self.greedy(Graph.BASIC, path)))
+        except:
+          return None
         # return edges[paths.index(best_path)]
 
         if ranking_method == sorted:
@@ -467,7 +487,7 @@ class Graph(object):
     return [edges[paths.index(best_path)] for best_path in [best_paths]][0]
 
   # the wisest heuristic of them all
-  def guru_heuristic(self, path, remaining_edges, edges=None, weights=None, ranking_method=min):
+  def babaji_heuristic(self, path, remaining_edges, edges=None, weights=None, ranking_method=min):
       heuristics = [Graph.BASIC, Graph.SMART, Graph.BINOCULARS]
       weights = weights or [0.5, 0.2, 2]
       edges = edges or self.valid_options(path, remaining_edges=remaining_edges)
@@ -559,14 +579,24 @@ class Graph(object):
       heuristic_func = self.smart_heuristic
     elif heuristic is Graph.BINOCULARS:
       heuristic_func = self.binoculars_heuristic
-    elif heuristic is Graph.GURU:
-      heuristic_func = self.guru_heuristic
+    elif heuristic is Graph.BABAJI:
+      heuristic_func = self.babaji_heuristic
     elif heuristic is Graph.STUBBORN:
       heuristic_func = self.stubborn_heuristic
     elif heuristic is Graph.SMART_BINOCULARS:
       heuristic_func = self.smart_binoculars_heuristic
+    elif heuristic is Graph.RANDOM:
+      heuristic_func = self.random_heuristic
 
     return heuristic_func
+
+  # basic idea:
+  # generate #[NUM_PATHS] random permutations that happen to be valid paths
+  # average all the weights
+  # idea is to get an understanding of average weight of graph
+  # in order to see how we are doing
+  def average_weight_of_a_path(self, num_paths=1000):
+    pass
 
   # DEPRECATED
 
